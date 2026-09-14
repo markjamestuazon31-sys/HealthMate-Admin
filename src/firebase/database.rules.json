@@ -1,0 +1,497 @@
+{
+  "rules": {
+    ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'administrator' || root.child('admins').child(auth.uid).child('role').val() === 'admin')",
+    ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'administrator' || root.child('admins').child(auth.uid).child('role').val() === 'admin')",
+    "admins": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+      }
+    },
+    "users": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      ".indexOn": [
+        "email",
+        "role",
+        "status",
+        "assignedBarangayId",
+        "purokId"
+      ],
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active')",
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (auth.uid === $uid && ((!data.exists() && ((!((newData.child('role').val() === 'user' || newData.child('role').val() === 'resident'))) || (newData.child('assignedBarangayId').val() === 'BUNUANAN' && (newData.child('purokId').val() === 'Purok 1' || newData.child('purokId').val() === 'Purok 2' || newData.child('purokId').val() === 'Purok 3' || newData.child('purokId').val() === 'Purok 4' || newData.child('purokId').val() === 'Purok 5') && newData.child('purokVerificationStatus').val() === 'PENDING'))) || (data.exists() && ((!((data.child('role').val() === 'user' || data.child('role').val() === 'resident'))) || (newData.child('assignedBarangayId').val() === data.child('assignedBarangayId').val() && newData.child('barangayName').val() === data.child('barangayName').val() && newData.child('purokId').val() === data.child('purokId').val() && newData.child('purokLabel').val() === data.child('purokLabel').val() && newData.child('purokVerificationStatus').val() === data.child('purokVerificationStatus').val() && newData.child('householdId').val() === data.child('householdId').val() && newData.child('inhabitantId').val() === data.child('inhabitantId').val()))))))",
+        "profileImage": {
+          ".read": "auth != null"
+        }
+      }
+    },
+    "publicProfiles": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "announcements": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      ".indexOn": [
+        "createdAt",
+        "active",
+        "category"
+      ]
+    },
+    "barangays": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+    },
+    "globalEmergencyContacts": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+    },
+    "fcmTokens": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "contactQrTokens": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "contactQrLookups": {
+      "$token": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "relationships": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$ownerUid": {
+        ".read": "auth != null && auth.uid === $ownerUid",
+        "$contactUid": {
+          ".read": "auth != null && auth.uid === $contactUid",
+          ".write": "auth != null && (auth.uid === $ownerUid || auth.uid === $contactUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+          ".validate": "!newData.exists() || newData.child('contactUid').val() === $contactUid"
+        }
+      }
+    },
+    "relationshipRequests": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$requesterUid": {
+          ".read": "auth != null && auth.uid === $requesterUid",
+          ".write": "auth != null && (auth.uid === $targetUid || auth.uid === $requesterUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+          ".validate": "!newData.exists() || (newData.child('requesterUid').val() === $requesterUid && newData.child('targetUid').val() === $targetUid)"
+        }
+      }
+    },
+    "contactLocationPermissions": {
+      "$ownerUid": {
+        ".read": "auth != null && auth.uid === $ownerUid",
+        "$contactUid": {
+          ".read": "auth != null && auth.uid === $contactUid",
+          ".write": "auth != null && (auth.uid === $ownerUid || auth.uid === $contactUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "locationSharingPreferences": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (data.child('activeIncidentId').isString() && root.child('emergencyResponses').child(data.child('activeIncidentId').val()).child(auth.uid).child('active').val() === true))"
+      }
+    },
+    "liveLocations": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (((root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'family')) && (root.child('locationSharingPreferences').child($uid).child('familySharingEnabled').val() === true || root.child('locationSharingPreferences').child($uid).child('sosActive').val() === true)) || (((root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'FRIEND' || root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'friend')) && root.child('contactLocationPermissions').child($uid).child(auth.uid).child('granted').val() === true))",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "userPresence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencyContacts": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || (((root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'family')) && (root.child('medicalQR').child($uid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('accessType').val() === 'FAMILY_QR' && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($uid).child('medicalToken').val() && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('expiresAt').val() >= now)) || (((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')))) && (root.child('medicalQR').child($uid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('accessType').val() === 'RESPONDENT_QR' && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($uid).child('medicalToken').val() && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('expiresAt').val() >= now)) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "contactRequests": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$senderUid": {
+          ".read": "auth != null && auth.uid === $senderUid",
+          ".write": "auth != null && (auth.uid === $targetUid || auth.uid === $senderUid)"
+        }
+      }
+    },
+    "medicalProfiles": {
+      "$ownerUid": {
+        ".read": "auth != null && (auth.uid === $ownerUid || (((root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'family')) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'FAMILY_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now)) || (((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')))) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'RESPONDENT_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now)) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "medicalQR": {
+      "$ownerUid": {
+        ".read": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "medicalAttachments": {
+      "$ownerUid": {
+        ".read": "auth != null && (auth.uid === $ownerUid || (((root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'family')) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'FAMILY_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now)) || (((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')))) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'RESPONDENT_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now)) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "medicalAttachmentData": {
+      "$ownerUid": {
+        ".read": "auth != null && (auth.uid === $ownerUid || (((root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'family')) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'FAMILY_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now)) || (((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')))) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'RESPONDENT_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now)) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "medications": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || (((root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($uid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($uid).child('relationshipType').val() === 'family')) && (root.child('medicalQR').child($uid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('accessType').val() === 'FAMILY_QR' && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($uid).child('medicalToken').val() && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('expiresAt').val() >= now)) || (((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')))) && (root.child('medicalQR').child($uid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('accessType').val() === 'RESPONDENT_QR' && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($uid).child('medicalToken').val() && root.child('medicalAccessGrants').child($uid).child(auth.uid).child('expiresAt').val() >= now)) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "medicationHistory": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "households": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$householdId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('householdId').val() === $householdId",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+        ".validate": "!newData.exists() || (newData.child('barangayId').val() === 'BUNUANAN' && (newData.child('purokId').val() === 'Purok 1' || newData.child('purokId').val() === 'Purok 2' || newData.child('purokId').val() === 'Purok 3' || newData.child('purokId').val() === 'Purok 4' || newData.child('purokId').val() === 'Purok 5'))"
+      }
+    },
+    "inhabitants": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$inhabitantId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('inhabitantId').val() === $inhabitantId",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+      }
+    },
+    "householdMembers": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$householdId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('householdId').val() === $householdId",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+      }
+    },
+    "householdMemberDirectory": {
+      "$householdId": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('householdId').val() === $householdId || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+      }
+    },
+    "householdCorrectionRequests": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$ownerUid": {
+        ".read": "auth != null && auth.uid === $ownerUid",
+        "$requestId": {
+          ".write": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+          ".validate": "!newData.exists() || (newData.child('requestId').val() === $requestId && newData.child('requestedBy').val() === $ownerUid)"
+        }
+      }
+    },
+    "emergencyDispatchRecipients": {
+      ".read": "auth != null",
+      "admins": {
+        "$uid": {
+          ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')"
+        }
+      },
+      "responders": {
+        "$uid": {
+          ".write": "auth != null && ((auth.uid === $uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active')) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "emergencyRecipientIndex": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        "$incidentId": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencies').child($incidentId).child('userId').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "emergencyIncidentRecipients": {
+      "$incidentId": {
+        ".read": "auth != null && (data.child(auth.uid).val() === true || root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        "$uid": {
+          ".write": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencies').child($incidentId).child('userId').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "userEmergencyIndex": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencies": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      ".indexOn": [
+        "status",
+        "createdAt",
+        "patientUid",
+        "assignedBarangayId",
+        "purokId"
+      ],
+      "$incidentId": {
+        ".read": "auth != null && (data.child('patientUid').val() === auth.uid || data.child('userId').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && ((!data.exists() && (newData.child('patientUid').val() === auth.uid || newData.child('userId').val() === auth.uid)) || data.child('patientUid').val() === auth.uid || data.child('userId').val() === auth.uid || root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencyLocations": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencyResponses": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        "$responderUid": {
+          ".write": "auth != null && ((auth.uid === $responderUid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active')) || (root.child('emergencies').child($incidentId).child('coordinatorResponderId').val() === auth.uid && root.child('emergencyResponses').child($incidentId).child(auth.uid).exists()) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "incidentAnalytics": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      ".indexOn": [
+        "createdAt",
+        "purokId",
+        "status",
+        "barangayId"
+      ],
+      "$incidentId": {
+        ".write": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".validate": "newData.hasChildren(['barangayId','purokId','latitude','longitude','type','priority','status','createdAt']) && newData.child('latitude').isNumber() && newData.child('latitude').val() >= -90 && newData.child('latitude').val() <= 90 && newData.child('longitude').isNumber() && newData.child('longitude').val() >= -180 && newData.child('longitude').val() <= 180 && !newData.hasChild('patientUid') && !newData.hasChild('patientName') && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (newData.child('barangayId').val() === 'BUNUANAN' && (newData.child('purokId').val() === 'Purok 1' || newData.child('purokId').val() === 'Purok 2' || newData.child('purokId').val() === 'Purok 3' || newData.child('purokId').val() === 'Purok 4' || newData.child('purokId').val() === 'Purok 5' || newData.child('purokId').val() === 'Unassigned')) || (data.exists() && newData.child('barangayId').val() === data.child('barangayId').val() && newData.child('purokId').val() === data.child('purokId').val() && newData.child('latitude').val() === data.child('latitude').val() && newData.child('longitude').val() === data.child('longitude').val()))"
+      }
+    },
+    "emergencyMedicalSummaries": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true)",
+        ".write": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencyMedicalPackets": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true)",
+        ".write": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencyArrivalTokens": {
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "emergencyArrivalReports": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true)",
+        ".write": "auth != null && (root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "respondentResponseIndex": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "respondentPresence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && ((auth.uid === $uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active')) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "respondents": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "accountStatus",
+        "status",
+        "assignedBarangayId",
+        "availability"
+      ],
+      "$uid": {
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (auth.uid === $uid && (data.exists() || (newData.child('authUid').val() === auth.uid && (root.child('respondentInvitations').child(newData.child('respondentInvitationKey').val()).child('status').val() === 'INVITED' || root.child('respondentInvitations').child(newData.child('respondentInvitationKey').val()).child('status').val() === 'invited') && root.child('respondentInvitations').child(newData.child('respondentInvitationKey').val()).child('normalizedEmail').val() === auth.token.email))))"
+      }
+    },
+    "responders": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (auth.uid === $uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active')))"
+      }
+    },
+    "responderApplications": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      ".indexOn": [
+        "status",
+        "updatedAt",
+        "submittedAt"
+      ],
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "responderApplicationDocuments": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "respondentSignupEligibility": {
+      "$invitationKey": {
+        ".read": true,
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || root.child('respondentInvitations').child($invitationKey).child('normalizedEmail').val() === auth.token.email)"
+      }
+    },
+    "respondentInvitations": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$invitationKey": {
+        ".read": "auth != null && data.child('normalizedEmail').val() === auth.token.email",
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || data.child('normalizedEmail').val() === auth.token.email)"
+      }
+    },
+    "notifications": {
+      "$targetUid": {
+        ".read": "auth != null && (auth.uid === $targetUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && (auth.uid === $targetUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".indexOn": [
+          "createdAt",
+          "timestamp",
+          "read"
+        ],
+        "$notificationId": {
+          ".write": "auth != null && (auth.uid === $targetUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (!data.exists() && newData.child('createdBy').val() === auth.uid && ((newData.child('incidentId').isString() && root.child('emergencyIncidentRecipients').child(newData.child('incidentId').val()).child(auth.uid).val() === true && root.child('emergencyIncidentRecipients').child(newData.child('incidentId').val()).child($targetUid).val() === true) || (newData.child('emergencyId').isString() && root.child('emergencyIncidentRecipients').child(newData.child('emergencyId').val()).child(auth.uid).val() === true && root.child('emergencyIncidentRecipients').child(newData.child('emergencyId').val()).child($targetUid).val() === true))))"
+        }
+      }
+    },
+    "notificationRequests": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$requestId": {
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (!data.exists() && newData.child('createdBy').val() === auth.uid && newData.child('targetUserId').isString() && ((newData.child('incidentId').isString() && root.child('emergencyIncidentRecipients').child(newData.child('incidentId').val()).child(auth.uid).val() === true && root.child('emergencyIncidentRecipients').child(newData.child('incidentId').val()).child(newData.child('targetUserId').val()).val() === true) || (newData.child('emergencyId').isString() && root.child('emergencyIncidentRecipients').child(newData.child('emergencyId').val()).child(auth.uid).val() === true && root.child('emergencyIncidentRecipients').child(newData.child('emergencyId').val()).child(newData.child('targetUserId').val()).val() === true))))"
+      }
+    },
+    "conversations": {
+      "$conversationId": {
+        ".read": "auth != null && data.child('participantUids').child(auth.uid).val() === true",
+        ".write": "auth != null && (data.child('participantUids').child(auth.uid).val() === true || newData.child('participantUids').child(auth.uid).val() === true)"
+      }
+    },
+    "conversationMessages": {
+      "$conversationId": {
+        ".read": "auth != null && root.child('conversations').child($conversationId).child('participantUids').child(auth.uid).val() === true",
+        ".indexOn": [
+          "sentAt"
+        ],
+        "$messageId": {
+          ".write": "auth != null && root.child('conversations').child($conversationId).child('participantUids').child(auth.uid).val() === true && ((!data.exists() && newData.child('senderUid').val() === auth.uid) || data.child('senderUid').val() === auth.uid || data.child('receiverUid').val() === auth.uid)"
+        }
+      }
+    },
+    "userConversations": {
+      "$ownerUid": {
+        ".read": "auth != null && auth.uid === $ownerUid",
+        ".indexOn": [
+          "lastMessageAt"
+        ],
+        "$conversationId": {
+          ".write": "auth != null && (auth.uid === $ownerUid || (root.child('conversations').child($conversationId).child('participantUids').child(auth.uid).val() === true && root.child('conversations').child($conversationId).child('participantUids').child($ownerUid).val() === true))"
+        }
+      }
+    },
+    "calls": {
+      "$callId": {
+        ".read": "auth != null && (data.child('callerId').val() === auth.uid || data.child('receiverId').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active'))) ",
+        ".write": "auth != null && ((!data.exists() && newData.child('callerId').val() === auth.uid && newData.child('receiverId').isString()) || data.child('callerId').val() === auth.uid || data.child('receiverId').val() === auth.uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "incomingCalls": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        ".indexOn": [
+          "createdAt"
+        ],
+        "$callId": {
+          ".write": "auth != null && (auth.uid === $targetUid || data.child('callerUid').val() === auth.uid || data.child('callerId').val() === auth.uid || (!data.exists() && (newData.child('callerUid').val() === auth.uid || newData.child('callerId').val() === auth.uid) && (newData.child('targetUid').val() === $targetUid || newData.child('receiverId').val() === $targetUid)) || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+        }
+      }
+    },
+    "emergencyAgencyActions": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true)",
+        ".write": "auth != null && (root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "respondentAgencyActions": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "auditLogs": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      ".indexOn": [
+        "timestamp",
+        "performedBy",
+        "action"
+      ],
+      "$logId": {
+        ".write": "auth != null && (((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')) || (!data.exists() && (newData.child('performedBy').val() === auth.uid || newData.child('userId').val() === auth.uid)))"
+      }
+    },
+    "rescueReports": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')",
+      "$incidentId": {
+        ".read": "auth != null && (root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true)",
+        ".write": "auth != null && (root.child('emergencyResponses').child($incidentId).child(auth.uid).child('active').val() === true || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    },
+    "medicalAccessAudit": {
+      "$ownerUid": {
+        ".read": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        ".indexOn": [
+          "createdAt"
+        ],
+        "$eventId": {
+          ".write": "auth != null && !data.exists() && newData.child('scannerUid').val() === auth.uid && (((newData.child('accessType').val() === 'FAMILY_QR') && (((root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'family')) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'FAMILY_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now))) || ((newData.child('accessType').val() === 'RESPONDENT_QR') && (((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')))) && (root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('scannerUid').val() === auth.uid && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('accessType').val() === 'RESPONDENT_QR' && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && root.child('medicalAccessGrants').child($ownerUid).child(auth.uid).child('expiresAt').val() >= now))))",
+          ".validate": "newData.hasChildren(['scannerUid','accessType','scannerRole','source','createdAt']) && newData.child('scannerUid').isString() && newData.child('scannerUid').val() === auth.uid && (newData.child('accessType').val() === 'FAMILY_QR' || newData.child('accessType').val() === 'RESPONDENT_QR') && newData.child('scannerRole').isString() && newData.child('source').isString() && newData.child('createdAt').isNumber()"
+        }
+      }
+    },
+    "medicalAccessGrants": {
+      "$ownerUid": {
+        ".read": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))",
+        "$scannerUid": {
+          ".write": "auth != null && auth.uid === $scannerUid && root.child('medicalQR').child($ownerUid).child('qrEnabled').val() === true && newData.child('scannerUid').val() === auth.uid && newData.child('medicalToken').val() === root.child('medicalQR').child($ownerUid).child('medicalToken').val() && newData.child('source').val() === 'MEDICAL_QR' && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() > now && newData.child('expiresAt').val() <= now + 2700000 && (((newData.child('accessType').val() === 'FAMILY_QR') && ((root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'ACCEPTED' || root.child('relationships').child(auth.uid).child($ownerUid).child('status').val() === 'accepted') && (root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'FAMILY' || root.child('relationships').child(auth.uid).child($ownerUid).child('relationshipType').val() === 'family'))) || ((newData.child('accessType').val() === 'RESPONDENT_QR') && ((root.child('users').child(auth.uid).child('role').val() === 'responder' || root.child('users').child(auth.uid).child('role').val() === 'RESPONDER') && (root.child('users').child(auth.uid).child('accountStatus').val() === 'active' || root.child('users').child(auth.uid).child('status').val() === 'active' || root.child('users').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('users').child(auth.uid).child('status').val() === 'ACTIVE') && root.child('respondents').child(auth.uid).child('authUid').val() === auth.uid && (root.child('respondents').child(auth.uid).child('accountStatus').val() === 'active' || root.child('respondents').child(auth.uid).child('status').val() === 'active' || root.child('respondents').child(auth.uid).child('accountStatus').val() === 'ACTIVE' || root.child('respondents').child(auth.uid).child('status').val() === 'ACTIVE') && ((root.child('responderApplications').child(auth.uid).child('applicantUid').val() === auth.uid && (root.child('responderApplications').child(auth.uid).child('status').val() === 'approved' || root.child('responderApplications').child(auth.uid).child('status').val() === 'APPROVED')) || (root.child('users').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('users').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED')) || (root.child('respondents').child(auth.uid).child('respondentInvitationKey').isString() && root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('registeredUid').val() === auth.uid && (root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'registered' || root.child('respondentInvitations').child(root.child('respondents').child(auth.uid).child('respondentInvitationKey').val()).child('status').val() === 'REGISTERED'))))))",
+          ".validate": "newData.hasChildren(['scannerUid','accessType','medicalToken','source','grantedAt','expiresAt']) && newData.child('scannerUid').isString() && newData.child('scannerUid').val() === auth.uid && (newData.child('accessType').val() === 'FAMILY_QR' || newData.child('accessType').val() === 'RESPONDENT_QR') && newData.child('medicalToken').isString() && newData.child('source').val() === 'MEDICAL_QR' && newData.child('grantedAt').isNumber() && newData.child('expiresAt').isNumber()"
+        },
+        ".write": "auth != null && (auth.uid === $ownerUid || ((root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator') && (root.child('admins').child(auth.uid).child('status').val() === 'active' || root.child('admins').child(auth.uid).child('accountStatus').val() === 'active')))"
+      }
+    }
+  }
+}

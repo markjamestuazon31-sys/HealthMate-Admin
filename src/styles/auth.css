@@ -1,0 +1,404 @@
+/*
+ * HealthMate authentication styles.
+ * The aliases below support both the production admin page and older
+ * Login.tsx versions that use common class names such as login-container,
+ * auth-card, login-form, and form-group.
+ */
+
+.hm-auth-page,
+.auth-page,
+.login-page,
+.auth-container,
+.login-container {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 84% 8%, rgba(19, 168, 199, 0.15), transparent 28rem),
+    linear-gradient(145deg, #f7fafc 0%, #eef5f8 52%, #f8fafc 100%);
+}
+
+.hm-auth-page::before,
+.auth-page::before,
+.login-page::before,
+.auth-container::before,
+.login-container::before {
+  position: absolute;
+  z-index: -1;
+  top: -11rem;
+  right: -10rem;
+  width: 28rem;
+  height: 28rem;
+  content: "";
+  border: 1px solid rgba(8, 119, 168, 0.14);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 3rem rgba(8, 119, 168, 0.035),
+    0 0 0 7rem rgba(8, 119, 168, 0.025);
+  pointer-events: none;
+}
+
+.hm-auth-brand,
+.auth-brand-panel,
+.login-brand,
+.login-left-panel {
+  position: relative;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(75, 199, 220, 0.2), transparent 21rem),
+    linear-gradient(145deg, #071c2c 0%, #0b3c5d 54%, #146c94 100%);
+}
+
+.hm-auth-brand::after,
+.auth-brand-panel::after,
+.login-brand::after,
+.login-left-panel::after {
+  position: absolute;
+  right: -8rem;
+  bottom: -11rem;
+  width: 28rem;
+  height: 28rem;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 4rem rgba(255, 255, 255, 0.035),
+    0 0 0 9rem rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+.hm-auth-card,
+.auth-card,
+.login-card,
+.auth-form-card,
+.login-form-container {
+  position: relative;
+  border: 1px solid rgba(219, 228, 236, 0.92) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 24px 70px rgba(7, 28, 44, 0.16) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* Standalone form layout for projects not using Material UI. */
+.auth-shell,
+.login-wrapper,
+.auth-wrapper {
+  display: grid;
+  width: min(1120px, calc(100% - 32px));
+  min-height: 650px;
+  margin: 0 auto;
+  grid-template-columns: minmax(360px, 0.92fr) minmax(420px, 1.08fr);
+  overflow: hidden;
+  border: 1px solid rgba(219, 228, 236, 0.82);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 28px 90px rgba(7, 28, 44, 0.18);
+}
+
+.auth-content,
+.login-content,
+.login-right-panel {
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 5vw, 72px);
+}
+
+.auth-form,
+.login-form {
+  display: grid;
+  width: min(100%, 440px);
+  gap: 18px;
+}
+
+.auth-header,
+.login-header {
+  margin-bottom: 10px;
+}
+
+.auth-title,
+.login-title {
+  margin: 0 0 8px;
+  color: #12202f;
+  font-size: clamp(1.85rem, 3vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.auth-subtitle,
+.login-subtitle {
+  margin: 0;
+  color: #607184;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.form-group,
+.auth-field,
+.login-field {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group label,
+.auth-field label,
+.login-field label {
+  color: #24394d;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.form-group input,
+.auth-field input,
+.login-field input,
+.auth-input,
+.login-input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 15px;
+  border: 1px solid #d5e0e8;
+  border-radius: 12px;
+  outline: none;
+  background: #ffffff;
+  color: #12202f;
+  font-size: 0.98rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.form-group input:hover,
+.auth-field input:hover,
+.login-field input:hover,
+.auth-input:hover,
+.login-input:hover {
+  border-color: #a9bdca;
+}
+
+.form-group input:focus,
+.auth-field input:focus,
+.login-field input:focus,
+.auth-input:focus,
+.login-input:focus {
+  border-color: #0877a8;
+  box-shadow: 0 0 0 4px rgba(8, 119, 168, 0.14);
+}
+
+.form-group input::placeholder,
+.auth-field input::placeholder,
+.login-field input::placeholder,
+.auth-input::placeholder,
+.login-input::placeholder {
+  color: #91a0ae;
+}
+
+.password-field,
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-field input,
+.password-input-wrapper input {
+  padding-right: 78px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  min-height: 34px;
+  padding: 0 8px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #0b5f87;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.password-toggle:hover {
+  background: #edf6f9;
+}
+
+.auth-submit,
+.login-button,
+.sign-in-button,
+button[type="submit"].auth-button {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0b5f87 0%, #0877a8 100%);
+  box-shadow: 0 12px 26px rgba(8, 119, 168, 0.22);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.auth-submit:hover,
+.login-button:hover,
+.sign-in-button:hover,
+button[type="submit"].auth-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(8, 119, 168, 0.28);
+  filter: brightness(1.04);
+}
+
+.auth-submit:active,
+.login-button:active,
+.sign-in-button:active,
+button[type="submit"].auth-button:active {
+  transform: translateY(0);
+}
+
+.auth-submit:disabled,
+.login-button:disabled,
+.sign-in-button:disabled,
+button[type="submit"].auth-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.64;
+  transform: none;
+  box-shadow: none;
+}
+
+.auth-actions,
+.login-actions,
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.forgot-password,
+.auth-link,
+.login-link {
+  color: #0b5f87;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.forgot-password:hover,
+.auth-link:hover,
+.login-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-error,
+.login-error,
+.error-message {
+  padding: 11px 13px;
+  border: 1px solid #f1bdc3;
+  border-radius: 11px;
+  background: #fff1f2;
+  color: #9d2331;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.auth-footer,
+.login-footer {
+  margin-top: 8px;
+  color: #738395;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.auth-spinner,
+.login-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.42);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: hm-spin 750ms linear infinite;
+}
+
+@keyframes hm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .auth-shell,
+  .login-wrapper,
+  .auth-wrapper {
+    width: min(620px, calc(100% - 24px));
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .auth-brand-panel,
+  .login-brand,
+  .login-left-panel {
+    display: none;
+  }
+
+  .auth-content,
+  .login-content,
+  .login-right-panel {
+    padding: clamp(28px, 8vw, 56px);
+  }
+}
+
+@media (max-width: 520px) {
+  .hm-auth-page,
+  .auth-page,
+  .login-page,
+  .auth-container,
+  .login-container {
+    background: #f4f7fa;
+  }
+
+  .auth-shell,
+  .login-wrapper,
+  .auth-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .auth-content,
+  .login-content,
+  .login-right-panel {
+    align-content: center;
+    padding: 24px 18px;
+  }
+
+  .auth-actions,
+  .login-actions,
+  .form-options {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-submit,
+  .login-button,
+  .sign-in-button,
+  button[type="submit"].auth-button,
+  .form-group input,
+  .auth-field input,
+  .login-field input,
+  .auth-input,
+  .login-input {
+    transition: none;
+  }
+
+  .auth-spinner,
+  .login-spinner {
+    animation-duration: 1.4s;
+  }
+}

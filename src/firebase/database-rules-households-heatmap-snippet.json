@@ -1,0 +1,84 @@
+{
+  "_comment": "Merge these nodes into the existing Realtime Database rules. Do not deploy this snippet as the complete ruleset.",
+  "rules": {
+    "households": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$householdId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('householdId').val() === $householdId",
+        ".write": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['householdName','barangayId','purokId','address','primaryContact','status','createdAt','updatedAt']) && newData.child('barangayId').val() === 'BUNUANAN' && newData.child('primaryContact').isString() && newData.child('primaryContact').val().matches(/^09[0-9]{9}$/))"
+      }
+    },
+    "inhabitants": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$inhabitantId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('inhabitantId').val() === $inhabitantId",
+        ".write": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['householdId','fullName','relationshipToHead','isHouseholdHead','status','createdAt','updatedAt']) && root.child('households').child(newData.child('householdId').val()).exists() && (!newData.child('phone').exists() || newData.child('phone').val() === '' || newData.child('phone').val().matches(/^09[0-9]{9}$/)))"
+      }
+    },
+    "householdMembers": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$householdId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('householdId').val() === $householdId",
+        "$inhabitantId": {
+          ".write": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+          ".validate": "!newData.exists() || (newData.val() === true && root.child('inhabitants').child($inhabitantId).child('householdId').val() === $householdId)"
+        }
+      }
+    },
+    "householdMemberDirectory": {
+      "$householdId": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('householdId').val() === $householdId || (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        "$inhabitantId": {
+          ".write": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+          ".validate": "!newData.exists() || newData.hasChildren(['fullName','relationshipToHead','isHouseholdHead','status','updatedAt'])"
+        }
+      }
+    },
+    "incidentAnalytics": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$incidentId": {
+        ".write": "auth != null && ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')) || root.child('emergencies').child($incidentId).child('patientUid').val() === auth.uid || root.child('emergencyIncidentRecipients').child($incidentId).child(auth.uid).val() === true)",
+        ".validate": "newData.hasChildren(['barangayId','purokId','latitude','longitude','type','priority','status','createdAt']) && newData.child('latitude').isNumber() && newData.child('latitude').val() >= -90 && newData.child('latitude').val() <= 90 && newData.child('longitude').isNumber() && newData.child('longitude').val() >= -180 && newData.child('longitude').val() <= 180 && !newData.hasChild('patientUid') && !newData.hasChild('patientName')"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        "householdId": { ".validate": "newData.val() === data.val() || (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator'))" },
+        "inhabitantId": { ".validate": "newData.val() === data.val() || (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator'))" },
+        "purokId": { ".validate": "newData.val() === data.val() || (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator'))" }
+      }
+    },
+    "relationships": {
+      "$ownerUid": {
+        ".read": "auth != null && auth.uid === $ownerUid",
+        "$contactUid": {
+          ".write": "auth != null && (auth.uid === $ownerUid || auth.uid === $contactUid)",
+          ".validate": "!newData.exists() || (newData.hasChildren(['contactUid','relationshipType','status','updatedAt']) && newData.child('contactUid').val() === $contactUid && (newData.child('relationshipType').val() === 'FAMILY' || newData.child('relationshipType').val() === 'FRIEND'))"
+        }
+      }
+    },
+    "relationshipRequests": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$requesterUid": {
+          ".read": "auth != null && auth.uid === $requesterUid",
+          ".write": "auth != null && (auth.uid === $targetUid || auth.uid === $requesterUid)",
+          ".validate": "!newData.exists() || (newData.hasChildren(['requestId','requesterUid','targetUid','relationshipType','status','createdAt','updatedAt']) && newData.child('requestId').val() === $requesterUid && newData.child('requesterUid').val() === $requesterUid && newData.child('targetUid').val() === $targetUid && (newData.child('relationshipType').val() === 'FAMILY' || newData.child('relationshipType').val() === 'FRIEND'))"
+        }
+      }
+    },
+    "householdCorrectionRequests": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$ownerUid": {
+        ".read": "auth != null && auth.uid === $ownerUid",
+        "$requestId": {
+          ".write": "auth != null && (auth.uid === $ownerUid || (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+          ".validate": "newData.hasChildren(['requestId','requestedBy','householdId','message','status','createdAt','updatedAt']) && newData.child('requestId').val() === $requestId && newData.child('requestedBy').val() === $ownerUid && newData.child('message').isString() && newData.child('message').val().length >= 10"
+        }
+      }
+    }
+  }
+}

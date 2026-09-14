@@ -1,0 +1,36 @@
+{
+  "rules": {
+    "responderApplications": {
+      ".read": "auth != null && ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator'))",
+      ".indexOn": ["status", "updatedAt", "submittedAt"],
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        ".write": "auth != null && (((auth.uid === $uid) && newData.child('applicantUid').val() === auth.uid && newData.child('status').val() === 'pending_review' && (!data.exists() || data.child('status').val() === 'pending_review' || data.child('status').val() === 'additional_documents_required' || data.child('status').val() === 'rejected')) || ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        ".validate": "newData.hasChildren(['applicantUid','fullName','birthDate','gender','address','phone','email','barangayId','emergencyContactName','emergencyContactPhone','requestedRole','trainingSummary','status','submittedAt','updatedAt']) && newData.child('applicantUid').val() === $uid && newData.child('email').isString() && newData.child('fullName').isString() && newData.child('status').isString()"
+      }
+    },
+    "responderApplicationDocuments": {
+      ".read": "auth != null && ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator'))",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        ".write": "auth != null && ((auth.uid === $uid && (!root.child('responderApplications').child($uid).exists() || root.child('responderApplications').child($uid).child('status').val() === 'pending_review' || root.child('responderApplications').child($uid).child('status').val() === 'additional_documents_required' || root.child('responderApplications').child($uid).child('status').val() === 'rejected')) || ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        "profilePhoto": {
+          ".validate": "newData.hasChildren(['type','mimeType','base64Data','encodedBytes','uploadedAt']) && newData.child('type').val() === 'PROFILE_PHOTO' && newData.child('mimeType').val() === 'image/jpeg' && newData.child('base64Data').isString() && newData.child('base64Data').val().length <= 480000 && newData.child('encodedBytes').isNumber() && newData.child('encodedBytes').val() <= 360000"
+        },
+        "governmentId": {
+          ".validate": "newData.hasChildren(['type','mimeType','base64Data','encodedBytes','uploadedAt']) && newData.child('type').val() === 'GOVERNMENT_ID' && newData.child('mimeType').val() === 'image/jpeg' && newData.child('base64Data').isString() && newData.child('base64Data').val().length <= 1200000 && newData.child('encodedBytes').isNumber() && newData.child('encodedBytes').val() <= 900000"
+        },
+        "trainingCertificate": {
+          ".validate": "newData.hasChildren(['type','mimeType','base64Data','encodedBytes','uploadedAt']) && newData.child('type').val() === 'TRAINING_CERTIFICATE' && newData.child('mimeType').val() === 'image/jpeg' && newData.child('base64Data').isString() && newData.child('base64Data').val().length <= 1200000 && newData.child('encodedBytes').isNumber() && newData.child('encodedBytes').val() <= 900000"
+        },
+        ".validate": "newData.hasChildren(['profilePhoto','governmentId','trainingCertificate'])"
+      }
+    },
+    "respondents": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')))",
+        ".write": "auth != null && ((root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator'))"
+      }
+    }
+  }
+}

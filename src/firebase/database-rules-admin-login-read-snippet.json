@@ -1,0 +1,10 @@
+{
+  "_comment": "Merge rules.admins into your existing Realtime Database rules. Do not replace unrelated rules.",
+  "rules": {
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}

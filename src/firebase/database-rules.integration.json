@@ -1,0 +1,67 @@
+{
+  "_comment": "Merge these nodes into the existing Realtime Database rules. This is not a complete replacement ruleset.",
+  "rules": {
+    "emergencyDispatchRecipients": {
+      "admins": {
+        "$uid": {
+          ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+          ".write": "auth != null && auth.uid === $uid && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+          ".validate": "newData.hasChildren(['active','online','role','email','updatedAt']) && newData.child('active').val() === true && (newData.child('role').val() === 'admin' || newData.child('role').val() === 'administrator')"
+        }
+      }
+    },
+    "emergencies": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$incidentId": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    },
+    "emergencyLocations": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$incidentId": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    },
+    "emergencyResponses": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+    },
+    "emergencyMedicalSummaries": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+    },
+    "emergencyIncidentRecipients": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+    },
+    "users": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+    },
+    "respondents": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$uid": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    },
+    "notificationRequests": {
+      "$requestId": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    },
+    "locationSharingPreferences": {
+      "$uid": {
+        ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    },
+    "auditLogs": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$logId": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    },
+    "rescueReports": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')",
+      "$incidentId": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('accountStatus').val() === 'active' || root.child('admins').child(auth.uid).child('status').val() === 'active') && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || root.child('admins').child(auth.uid).child('role').val() === 'administrator')"
+      }
+    }
+  }
+}

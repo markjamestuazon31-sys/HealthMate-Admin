@@ -1,0 +1,14 @@
+{
+  "admins": {
+    "QzzOvmGOfSSpNFhDI9V8YfqekoR2": {
+      "accountStatus": "active",
+      "department": "Emergency Coordination",
+      "email": "admin@gmail.com",
+      "fullName": "HealthMate Administrator",
+      "officeTitle": "System Administrator",
+      "phone": "",
+      "role": "administrator",
+      "status": "active"
+    }
+  }
+}
