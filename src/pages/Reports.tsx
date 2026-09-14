@@ -1,681 +1,104 @@
-import {
-  ArticleOutlined,
-  AssessmentOutlined,
-  CampaignOutlined,
-  CloudDoneOutlined,
-  ContactPhoneOutlined,
-  DownloadRounded,
-  ExpandMoreRounded,
-  GroupsOutlined,
-  HistoryOutlined,
-  HomeWorkOutlined,
-  LocalHospitalOutlined,
-  PrintRounded,
-  RefreshRounded,
-  SearchRounded,
-  SupportAgentOutlined,
-} from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  Chip,
-  CircularProgress,
-  InputAdornment,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { alpha } from "@mui/material/styles";
-import { useEffect, useState } from "react";
-import PageHeader from "../components/common/PageHeader";
-import {
-  listenSystemReportData,
-  type SystemReportData,
-} from "../services/reportService";
-import {
-  buildGeneratedReport,
-  downloadReportCsv,
-  printGeneratedReport,
-  REPORT_CATALOG,
-  type GeneratedReport,
-  type ReportFilters,
-  type ReportMetric,
-  type ReportType,
-} from "../utils/reportGenerator";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AssessmentOutlined, ArticleOutlined, CampaignOutlined, CheckCircleOutlineRounded, CloudOffOutlined, ContactPhoneOutlined, DownloadRounded, ExpandMoreRounded, GroupsOutlined, HistoryOutlined, HomeWorkOutlined, LocalHospitalOutlined, MapOutlined, NotificationsNoneRounded, PrintRounded, RefreshRounded, SearchRounded, SupportAgentOutlined, TaskAltRounded } from "@mui/icons-material";
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Autocomplete, Button, Chip, CircularProgress, InputAdornment, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from "@mui/material";
+import { emptyReportSnapshot, listenSystemReportData, REPORT_SOURCE_LABELS } from "../services/reportService";
+import { BUNUANAN_PUROKS } from "../config/bunuananServiceArea";
+import { SECTORS } from "../services/inhabitantModel";
+import { buildGeneratedReport, describeReportFilter, titleCase, DEFAULT_REPORT_FILTERS, downloadReportCsv, presetDates, printGeneratedReport, REPORT_CATALOG, selectReportSection, type GeneratedReport, type ReportFilters, type ReportSection, type ReportType } from "../utils/reportGenerator";
+import "../styles/reports.css";
 
-const EMPTY_DATA: SystemReportData = {
-  emergencies: [],
-  rescueReports: [],
-  users: [],
-  households: [],
-  inhabitants: [],
-  respondentApplications: [],
-  respondentInvitations: [],
-  responders: [],
-  directoryContacts: [],
-  announcements: [],
-  auditLogs: [],
-};
-
-const DEFAULT_FILTERS: ReportFilters = {
-  startDate: "",
-  endDate: "",
-  search: "",
-};
-
-const PREVIEW_LIMIT = 18;
-
-function reportIcon(type: ReportType) {
-  switch (type) {
-    case "complete":
-      return <AssessmentOutlined />;
-    case "emergencies":
-      return <LocalHospitalOutlined />;
-    case "rescue":
-      return <ArticleOutlined />;
-    case "residents":
-      return <GroupsOutlined />;
-    case "population":
-      return <HomeWorkOutlined />;
-    case "responders":
-      return <SupportAgentOutlined />;
-    case "directory":
-      return <ContactPhoneOutlined />;
-    case "announcements":
-      return <CampaignOutlined />;
-    case "audit":
-      return <HistoryOutlined />;
-  }
+function ReportIcon({type}:{type:ReportType}) {
+  switch(type){case"emergencies":return <LocalHospitalOutlined/>;case"rescue":return <ArticleOutlined/>;case"heatmap":return <MapOutlined/>;case"population":return <HomeWorkOutlined/>;case"population-summary":case"residents":return <GroupsOutlined/>;case"monitoring":case"programs":return <TaskAltRounded/>;case"responders":return <SupportAgentOutlined/>;case"directory":return <ContactPhoneOutlined/>;case"announcements":return <CampaignOutlined/>;case"notifications":return <NotificationsNoneRounded/>;case"audit":return <HistoryOutlined/>;default:return <AssessmentOutlined/>;}
 }
-
-function metricColors(tone: ReportMetric["tone"]) {
-  switch (tone) {
-    case "error":
-      return { main: "#D92D20", soft: "#FFF1F0" };
-    case "success":
-      return { main: "#039855", soft: "#ECFDF3" };
-    case "warning":
-      return { main: "#DC6803", soft: "#FFFAEB" };
-    case "neutral":
-      return { main: "#52667A", soft: "#F5F7FA" };
-    default:
-      return { main: "#B42318", soft: "#FFF1F0" };
-  }
+const groups=[...new Set(REPORT_CATALOG.map(d=>d.group))];
+function SectionTable({section}:{section:ReportSection}) {
+  const [page,setPage]=useState(0),[size,setSize]=useState(10);
+  useEffect(()=>setPage(0),[section]);
+  return <><p className="rc-section-description">{section.description}</p><TableContainer className="rc-table-container" tabIndex={0} role="region" aria-label={`${section.title} table, scroll horizontally for more columns`}><Table stickyHeader aria-label={section.title}><TableHead><TableRow>{section.columns.map(c=><TableCell key={c.key} scope="col">{c.label}</TableCell>)}</TableRow></TableHead><TableBody>{section.rows.length?section.rows.slice(page*size,(page+1)*size).map((row,i)=><TableRow key={i} hover>{section.columns.map(c=><TableCell key={c.key}>{String(row[c.key]??"")}</TableCell>)}</TableRow>):<TableRow><TableCell colSpan={section.columns.length}><div className="rc-table-empty">No records match these filters.</div></TableCell></TableRow>}</TableBody></Table></TableContainer><TablePagination component="div" count={section.rows.length} page={page} onPageChange={(_,p)=>setPage(p)} rowsPerPage={size} onRowsPerPageChange={e=>{setSize(Number(e.target.value));setPage(0);}} rowsPerPageOptions={[10,25,50]} labelRowsPerPage="Rows"/></>;
 }
-
-function MetricCard({ metric }: { metric: ReportMetric }) {
-  const colors = metricColors(metric.tone);
-  return (
-    <Paper
-      variant="outlined"
-      sx={{
-        p: 2,
-        minHeight: 116,
-        borderRadius: 3,
-        borderColor: alpha(colors.main, 0.16),
-        bgcolor: colors.soft,
-        boxShadow: "none",
-      }}
-    >
-      <Typography
-        sx={{
-          color: "text.secondary",
-          fontSize: 10.5,
-          fontWeight: 850,
-          letterSpacing: 0.65,
-          textTransform: "uppercase",
-        }}
-      >
-        {metric.label}
-      </Typography>
-      <Typography
-        sx={{
-          mt: 0.6,
-          color: colors.main,
-          fontSize: 28,
-          fontWeight: 900,
-          lineHeight: 1.1,
-          letterSpacing: -0.8,
-        }}
-      >
-        {metric.value}
-      </Typography>
-      {metric.helper && (
-        <Typography color="text.secondary" fontSize={11.5} sx={{ mt: 0.65 }}>
-          {metric.helper}
-        </Typography>
-      )}
-    </Paper>
-  );
-}
-
-function ReportPreview({ report }: { report: GeneratedReport }) {
-  return (
-    <Stack spacing={2.25}>
-      {report.sections.map((section, index) => {
-        const previewRows = section.rows.slice(0, PREVIEW_LIMIT);
-        const truncated = section.rows.length > PREVIEW_LIMIT;
-
-        return (
-          <Accordion
-            key={section.id}
-            defaultExpanded={index === 0}
-            disableGutters
-            elevation={0}
-            sx={{
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: "18px !important",
-              overflow: "hidden",
-              "&:before": { display: "none" },
-            }}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreRounded />}
-              sx={{
-                minHeight: 68,
-                px: { xs: 2, sm: 2.5 },
-                bgcolor: "#F8FAFC",
-                borderBottom: "1px solid",
-                borderColor: "divider",
-                "& .MuiAccordionSummary-content": { my: 1.4 },
-              }}
-            >
-              <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-                <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap">
-                  <Typography fontWeight={880} color="text.primary">
-                    {section.title}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={`${section.rows.length} record${section.rows.length === 1 ? "" : "s"}`}
-                    sx={{ bgcolor: "#FFF1F0", color: "#B42318", fontWeight: 850 }}
-                  />
-                </Stack>
-                {section.description && (
-                  <Typography color="text.secondary" fontSize={11.5} sx={{ mt: 0.3 }}>
-                    {section.description}
-                  </Typography>
-                )}
-              </Box>
-            </AccordionSummary>
-
-            <AccordionDetails sx={{ p: 0 }}>
-              <TableContainer sx={{ maxHeight: 480 }}>
-                <Table stickyHeader size="small" sx={{ minWidth: 900 }}>
-                  <TableHead>
-                    <TableRow>
-                      {section.columns.map((column) => (
-                        <TableCell key={column.key} align={column.align ?? "left"}>
-                          {column.label}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {previewRows.length ? (
-                      previewRows.map((row, rowIndex) => (
-                        <TableRow key={`${section.id}-${rowIndex}`} hover>
-                          {section.columns.map((column) => (
-                            <TableCell
-                              key={column.key}
-                              align={column.align ?? "left"}
-                              sx={{
-                                fontSize: 12,
-                                color: "text.primary",
-                                maxWidth: column.key === "details" ? 360 : 260,
-                                whiteSpace: "normal",
-                                wordBreak: "break-word",
-                              }}
-                            >
-                              {String(row[column.key] ?? "")}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={section.columns.length} align="center" sx={{ py: 5 }}>
-                          <Typography color="text.secondary" fontSize={13}>
-                            No records match the selected report filters.
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              {truncated && (
-                <Box sx={{ px: 2, py: 1.25, bgcolor: "#F8FAFC", borderTop: "1px solid", borderColor: "divider" }}>
-                  <Typography color="text.secondary" fontSize={11.5}>
-                    Preview shows the first {PREVIEW_LIMIT} rows. Print and CSV export include all {section.rows.length} records in this section.
-                  </Typography>
-                </Box>
-              )}
-            </AccordionDetails>
-          </Accordion>
-        );
-      })}
-    </Stack>
-  );
-}
-
 export default function Reports() {
-  const [reportType, setReportType] = useState<ReportType>("complete");
-  const [filters, setFilters] = useState<ReportFilters>(DEFAULT_FILTERS);
-  const [data, setData] = useState<SystemReportData>(EMPTY_DATA);
-  const [ready, setReady] = useState(false);
-  const [syncedAt, setSyncedAt] = useState(0);
-  const [generated, setGenerated] = useState<GeneratedReport | null>(null);
-  const [generatedSourceAt, setGeneratedSourceAt] = useState(0);
-  const [message, setMessage] = useState<{ severity: "success" | "error" | "info"; text: string } | null>(null);
-
-  useEffect(() => {
-    return listenSystemReportData((snapshot) => {
-      setData(snapshot.data);
-      setReady(snapshot.ready);
-      setSyncedAt(snapshot.syncedAt);
-    });
-  }, []);
-
-  const selectedDefinition = REPORT_CATALOG.find((item) => item.id === reportType) ?? REPORT_CATALOG[0];
-  const stale = Boolean(generated && generatedSourceAt && syncedAt > generatedSourceAt);
-
-  function updateFilter<K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) {
-    setFilters((current) => ({ ...current, [key]: value }));
+  const [type,setType]=useState<ReportType>("complete"),[filters,setFilters]=useState<ReportFilters>({...DEFAULT_REPORT_FILTERS});
+  const [snapshot,setSnapshot]=useState(emptyReportSnapshot),[retry,setRetry]=useState(0),[slow,setSlow]=useState(false);
+  const [generated,setGenerated]=useState<GeneratedReport|null>(null),[inputAtGeneration,setInputAtGeneration]=useState(""),[revisionAtGeneration,setRevisionAtGeneration]=useState(0);
+  const [sectionId,setSectionId]=useState(""),[view,setView]=useState<"overview"|"tables">("overview"),[message,setMessage]=useState("");
+  const preview=useRef<HTMLElement>(null);
+  useEffect(()=>{
+    setSnapshot(emptyReportSnapshot());setSlow(false);setGenerated(null);
+    const stop=listenSystemReportData(setSnapshot),timer=setTimeout(()=>setSlow(true),15000);
+    return()=>{stop();clearTimeout(timer);};
+  },[retry]);
+  const definition=REPORT_CATALOG.find(d=>d.id===type)!;
+  const problems=definition.sources.filter(s=>snapshot.status[s]==="error");
+  const loading=definition.sources.filter(s=>snapshot.status[s]==="loading");
+  const ready=!problems.length&&!loading.length&&snapshot.connected===true;
+  const fingerprint=JSON.stringify({type,filters});
+  const dirty=Boolean(generated&&fingerprint!==inputAtGeneration);
+  const newData=Boolean(generated&&snapshot.revision>revisionAtGeneration);
+  const section=generated?.sections.find(s=>s.id===sectionId)||generated?.sections[0];
+  const canExport=Boolean(generated&&ready&&!dirty);
+  useEffect(()=>{if(generated&&REPORT_CATALOG.find(d=>d.id===generated.type)!.sources.some(s=>snapshot.status[s]==="error"))setGenerated(null);},[snapshot.status,generated]);
+  const data=snapshot.data;
+  const isMonitoring=type==="monitoring"||type==="programs";
+  const isPopulation=type==="population"||type==="population-summary";
+  const showPurok=["emergencies","rescue","heatmap","population","population-summary","residents","monitoring","programs"].includes(type);
+  const showPriority=type==="emergencies"||type==="heatmap";
+  const statusOptions=useMemo(()=>{
+    if(type==="monitoring")return ["Pending","Done","Referred","Cancelled","Overdue"];
+    if(type==="rescue")return ["New","Previous"];
+    if(type==="population")return ["active","inactive","relocated","deceased"];
+    if(type==="population-summary"||type==="programs"||type==="audit"||type==="complete")return [];
+    const values=type==="emergencies"?data.emergencies.map(e=>e.status):type==="heatmap"?data.incidentAnalytics.map(e=>e.status):type==="residents"?data.users.map(u=>u.accountStatus||u.status||"Not recorded"):type==="responders"?[...data.responders.map(r=>r.accountStatus),...data.respondentApplications.map(a=>a.status),...data.respondentInvitations.map(i=>i.status)]:type==="directory"?["active","inactive"]:type==="announcements"?["published","draft","archived"]:type==="notifications"?data.notifications.map(n=>n.status):[];
+    return [...new Set(values)].sort();
+  },[type,data]);
+  const householdOptions=data.households.map(h=>({id:h.id,name:`${h.householdName} • ${h.purokId}`,search:`${h.householdName} ${h.id} ${h.householdHeadName} ${h.address} ${h.purokId}`}));
+  const memberOptions=data.inhabitants.filter(p=>!filters.household||p.householdId===filters.household).map(p=>({id:p.id,name:p.fullName,search:`${p.fullName} ${p.id}`}));
+  const programOptions=[...data.monitoringPrograms.map(p=>({id:p.id,name:p.name,search:`${p.name} ${p.category}`})),...[...new Set(data.monitoringCases.map(c=>c.program))].filter(name=>!data.monitoringPrograms.some(p=>p.name===name||p.aliases?.includes(name))).map(name=>({id:name,name,search:name}))];
+  const respondentOptions=data.responders.map(r=>({id:r.authUid||r.id,name:r.name,search:`${r.name} ${r.email}`}));
+  function update<K extends keyof ReportFilters>(key:K,value:ReportFilters[K]){setFilters(f=>({...f,[key]:value,...(key==="household"?{member:""}:{})}));}
+  function chooseReport(next:ReportType){setType(next);setFilters(f=>({...DEFAULT_REPORT_FILTERS,startDate:f.startDate,endDate:f.endDate,search:f.search}));setGenerated(null);setMessage("");}
+  function generate(){
+    if(!ready)return;
+    try{const report=buildGeneratedReport(type,data,filters);setGenerated(report);setInputAtGeneration(fingerprint);setRevisionAtGeneration(snapshot.revision);setSectionId(report.sections[0]?.id||"");setView("overview");setMessage("");requestAnimationFrame(()=>preview.current?.scrollIntoView({behavior:"smooth",block:"start"}));}
+    catch(error){setMessage(error instanceof Error?error.message:"Unable to generate this report.");}
   }
-
-  function createReport(type = reportType) {
-    try {
-      const report = buildGeneratedReport(type, data, filters);
-      setGenerated(report);
-      setGeneratedSourceAt(syncedAt || Date.now());
-      setMessage({
-        severity: "success",
-        text: `${report.title} generated with ${report.totalRows} matching record${report.totalRows === 1 ? "" : "s"}.`,
-      });
-      return report;
-    } catch (caught) {
-      setMessage({
-        severity: "error",
-        text: caught instanceof Error ? caught.message : "Unable to generate the report.",
-      });
-      return null;
-    }
+  function exportReport(kind:"print"|"csv",onlySection=false){
+    if(!generated||!canExport)return;
+    try{const report=onlySection&&section?selectReportSection(generated,section.id):generated;kind==="print"?printGeneratedReport(report):downloadReportCsv(report);setMessage("");}
+    catch(error){setMessage(error instanceof Error?error.message:"Unable to export this report.");}
   }
-
-  function printReport(report: GeneratedReport | null) {
-    if (!report) return;
-    try {
-      printGeneratedReport(report);
-    } catch (caught) {
-      setMessage({
-        severity: "error",
-        text: caught instanceof Error ? caught.message : "Unable to open the print report.",
-      });
-    }
+  function selectField(key:keyof ReportFilters,title:string,options:Array<string|{value:string;label:string}>) {
+    return <TextField select label={title} value={filters[key]||""} onChange={e=>update(key,e.target.value)} fullWidth><MenuItem value="">All</MenuItem>{options.map(o=>{const value=typeof o==="string"?o:o.value;return <MenuItem key={value} value={value}>{typeof o==="string"?(key==="status"?titleCase(o):o):o.label}</MenuItem>;})}</TextField>;
   }
-
-  function printCompleteReport() {
-    const report = createReport("complete");
-    if (report) printReport(report);
+  function picker(key:keyof ReportFilters,title:string,options:Array<{id:string;name:string;search:string}>) {
+    return <Autocomplete options={options} value={options.find(o=>o.id===filters[key])||null} isOptionEqualToValue={(a,b)=>a.id===b.id} getOptionLabel={o=>o.name} filterOptions={(options,state)=>options.filter(o=>o.search.toLowerCase().includes(state.inputValue.toLowerCase()))} onChange={(_,v)=>update(key,v?.id||"")} renderInput={params=><TextField {...params} label={title} placeholder="All"/>}/>;
   }
-
-  function resetFilters() {
-    setFilters(DEFAULT_FILTERS);
-    setMessage({ severity: "info", text: "Report filters cleared. Generate the report again to refresh the preview." });
-  }
-
-  return (
-    <Stack spacing={3}>
-      <PageHeader
-        eyebrow="Administrative intelligence"
-        title="Reports center"
-        description="Generate formal system reports from live HealthMate records, filter by reporting period, preview before release, export to CSV, or print and save as PDF."
-        action={
-          <Button
-            variant="contained"
-            startIcon={<PrintRounded />}
-            onClick={printCompleteReport}
-            disabled={!ready}
-            sx={{ minHeight: 44, px: 2.1 }}
-          >
-            Print complete system report
-          </Button>
-        }
-      />
-
-      <Paper
-        sx={{
-          position: "relative",
-          overflow: "hidden",
-          p: { xs: 2.25, md: 3 },
-          borderRadius: 4,
-          color: "#FFFFFF",
-          background: "linear-gradient(120deg, #7A271A 0%, #B42318 50%, #D92D20 100%)",
-          boxShadow: "0 18px 48px rgba(122, 39, 26, 0.20)",
-        }}
-      >
-        <Box
-          aria-hidden
-          sx={{
-            position: "absolute",
-            width: 300,
-            height: 300,
-            borderRadius: "50%",
-            right: -95,
-            top: -165,
-            bgcolor: alpha("#FFFFFF", 0.08),
-          }}
-        />
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2.5} alignItems={{ md: "center" }}>
-          <Box
-            sx={{
-              width: 58,
-              height: 58,
-              flexShrink: 0,
-              display: "grid",
-              placeItems: "center",
-              borderRadius: 3,
-              bgcolor: alpha("#FFFFFF", 0.14),
-              border: `1px solid ${alpha("#FFFFFF", 0.2)}`,
-            }}
-          >
-            <AssessmentOutlined sx={{ fontSize: 30 }} />
-          </Box>
-          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography variant="h5" color="white">
-              System-wide reporting and print control
-            </Typography>
-            <Typography sx={{ mt: 0.65, maxWidth: 850, color: alpha("#FFFFFF", 0.76), lineHeight: 1.65, fontSize: 13 }}>
-              One reporting workspace for emergency operations, rescue outcomes, population records, respondent authorization, emergency contacts, communications, and administrative audit history.
-            </Typography>
-          </Box>
-          <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-            <Chip
-              icon={ready ? <CloudDoneOutlined /> : <CircularProgress size={14} color="inherit" />}
-              label={ready ? "All report sources synchronized" : "Synchronizing report sources"}
-              sx={{ bgcolor: alpha("#FFFFFF", 0.14), color: "white", border: `1px solid ${alpha("#FFFFFF", 0.2)}` }}
-            />
-            {syncedAt > 0 && (
-              <Chip
-                label={`Live sync ${new Date(syncedAt).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}`}
-                sx={{ bgcolor: alpha("#FFFFFF", 0.1), color: alpha("#FFFFFF", 0.85) }}
-              />
-            )}
-          </Stack>
-        </Stack>
-      </Paper>
-
-      {message && (
-        <Alert severity={message.severity} onClose={() => setMessage(null)}>
-          {message.text}
-        </Alert>
-      )}
-
-      <Box>
-        <Stack direction="row" spacing={1.1} alignItems="center">
-          <Box
-            sx={{
-              width: 4,
-              height: 27,
-              borderRadius: 99,
-              bgcolor: "primary.main",
-              boxShadow: `0 0 0 4px ${alpha("#D92D20", 0.07)}`,
-            }}
-          />
-          <Typography variant="h6">Choose a report</Typography>
-        </Stack>
-        <Typography color="text.secondary" fontSize={12.5} sx={{ mt: 0.35, mb: 1.5 }}>
-          Each report uses the same normalized Firebase data as its operational HealthMate screen.
-        </Typography>
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, minmax(0, 1fr))",
-              lg: "repeat(4, minmax(0, 1fr))",
-            },
-            gap: 1.5,
-          }}
-        >
-          {REPORT_CATALOG.map((item) => {
-            const selected = reportType === item.id;
-            return (
-              <Card
-                key={item.id}
-                sx={{
-                  height: "100%",
-                  borderColor: selected ? "primary.main" : "divider",
-                  boxShadow: selected ? `0 10px 30px ${alpha("#D92D20", 0.14)}` : "0 6px 20px rgba(16,42,67,0.04)",
-                }}
-              >
-                <CardActionArea
-                  onClick={() => setReportType(item.id)}
-                  sx={{ height: "100%", alignItems: "stretch" }}
-                >
-                  <CardContent sx={{ p: 2 }}>
-                    <Stack direction="row" spacing={1.25} alignItems="flex-start">
-                      <Box
-                        sx={{
-                          width: 42,
-                          height: 42,
-                          flexShrink: 0,
-                          display: "grid",
-                          placeItems: "center",
-                          borderRadius: 2.4,
-                          bgcolor: selected ? "primary.main" : "#FFF1F0",
-                          color: selected ? "white" : "primary.main",
-                          "& .MuiSvgIcon-root": { fontSize: 22 },
-                        }}
-                      >
-                        {reportIcon(item.id)}
-                      </Box>
-                      <Box sx={{ minWidth: 0 }}>
-                        <Typography fontWeight={870} fontSize={13.5} color="text.primary">
-                          {item.shortTitle}
-                        </Typography>
-                        <Typography color="text.secondary" fontSize={10.8} sx={{ mt: 0.45, lineHeight: 1.5 }}>
-                          {item.description}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            );
-          })}
-        </Box>
-      </Box>
-
-      <Paper
-        variant="outlined"
-        sx={{
-          p: { xs: 2, md: 2.5 },
-          borderRadius: 3.5,
-          boxShadow: "0 8px 28px rgba(16,42,67,0.045)",
-        }}
-      >
-        <Stack direction={{ xs: "column", lg: "row" }} spacing={2} alignItems={{ lg: "flex-end" }}>
-          <Box sx={{ minWidth: 220, flexGrow: 1 }}>
-            <Typography fontWeight={880} color="text.primary">
-              {selectedDefinition.title}
-            </Typography>
-            <Typography color="text.secondary" fontSize={11.5} sx={{ mt: 0.25 }}>
-              Configure the reporting period and optional search filter before generating.
-            </Typography>
-          </Box>
-
-          <TextField
-            label="Start date"
-            type="date"
-            value={filters.startDate}
-            onChange={(event) => updateFilter("startDate", event.target.value)}
-            InputLabelProps={{ shrink: true }}
-            sx={{ width: { xs: "100%", sm: 180 } }}
-          />
-          <TextField
-            label="End date"
-            type="date"
-            value={filters.endDate}
-            onChange={(event) => updateFilter("endDate", event.target.value)}
-            InputLabelProps={{ shrink: true }}
-            sx={{ width: { xs: "100%", sm: 180 } }}
-          />
-          <TextField
-            label="Search report records"
-            value={filters.search}
-            onChange={(event) => updateFilter("search", event.target.value)}
-            placeholder="Name, status, incident, purok…"
-            sx={{ width: { xs: "100%", lg: 300 } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchRounded fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<RefreshRounded />} onClick={resetFilters}>
-              Reset
-            </Button>
-            <Button variant="contained" onClick={() => createReport()} disabled={!ready}>
-              Generate report
-            </Button>
-          </Stack>
-        </Stack>
-      </Paper>
-
-      {!ready && (
-        <Paper variant="outlined" sx={{ p: 4, borderRadius: 3.5, textAlign: "center" }}>
-          <CircularProgress size={34} />
-          <Typography fontWeight={850} sx={{ mt: 1.5 }}>
-            Synchronizing system report sources
-          </Typography>
-          <Typography color="text.secondary" fontSize={12} sx={{ mt: 0.4 }}>
-            The report generator will be available when the administration datasets have completed their first live sync.
-          </Typography>
-        </Paper>
-      )}
-
-      {ready && !generated && (
-        <Paper
-          variant="outlined"
-          sx={{
-            minHeight: 250,
-            p: 4,
-            display: "grid",
-            placeItems: "center",
-            textAlign: "center",
-            borderRadius: 3.5,
-            borderStyle: "dashed",
-            bgcolor: "#FAFCFF",
-          }}
-        >
-          <Box>
-            <Box
-              sx={{
-                width: 58,
-                height: 58,
-                mx: "auto",
-                display: "grid",
-                placeItems: "center",
-                borderRadius: 3,
-                bgcolor: "#FFF1F0",
-                color: "primary.main",
-              }}
-            >
-              <ArticleOutlined sx={{ fontSize: 28 }} />
-            </Box>
-            <Typography variant="h6" sx={{ mt: 1.4 }}>
-              Ready to generate
-            </Typography>
-            <Typography color="text.secondary" sx={{ mt: 0.5, maxWidth: 600 }}>
-              Choose a report, set optional filters, then generate a formal preview. Printing and CSV export are enabled after generation.
-            </Typography>
-          </Box>
-        </Paper>
-      )}
-
-      {generated && (
-        <Stack spacing={2.25}>
-          <Paper
-            variant="outlined"
-            sx={{
-              p: { xs: 2, sm: 2.5 },
-              borderRadius: 3.5,
-              borderColor: alpha("#D92D20", 0.22),
-              boxShadow: "0 10px 34px rgba(16,42,67,0.055)",
-            }}
-          >
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
-              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center">
-                  <Typography variant="h6">{generated.title}</Typography>
-                  <Chip size="small" label={`${generated.totalRows} total rows`} color="primary" variant="outlined" />
-                  {stale && <Chip size="small" label="New live data available" color="warning" />}
-                </Stack>
-                <Typography color="text.secondary" fontSize={12} sx={{ mt: 0.5 }}>
-                  Generated {new Date(generated.generatedAt).toLocaleString("en-PH")} · {generated.periodLabel}
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                {stale && (
-                  <Button variant="outlined" startIcon={<RefreshRounded />} onClick={() => createReport(generated.type)}>
-                    Regenerate
-                  </Button>
-                )}
-                <Button variant="outlined" startIcon={<DownloadRounded />} onClick={() => downloadReportCsv(generated)}>
-                  Export CSV
-                </Button>
-                <Button variant="contained" startIcon={<PrintRounded />} onClick={() => printReport(generated)}>
-                  Print / Save PDF
-                </Button>
-              </Stack>
-            </Stack>
-          </Paper>
-
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, minmax(0, 1fr))",
-                lg: "repeat(4, minmax(0, 1fr))",
-              },
-              gap: 1.5,
-            }}
-          >
-            {generated.metrics.map((metric) => (
-              <MetricCard key={metric.label} metric={metric} />
-            ))}
-          </Box>
-
-          <ReportPreview report={generated} />
-
-          <Alert severity="info" icon={<PrintRounded fontSize="inherit" />}>
-            <strong>Print / Save PDF</strong> opens a formal A4 landscape report containing all matching rows, not only the on-screen preview. Use your browser's print destination to select a physical printer or “Save as PDF”.
-          </Alert>
-        </Stack>
-      )}
-    </Stack>
-  );
+  const extraFilters=isPopulation||isMonitoring||type==="rescue";
+  return <div className="rc-page">
+    <header className="rc-header"><div><p className="rc-eyebrow">ADMINISTRATION / REPORTS</p><h1>Reports center</h1><p>Choose a report, set your filters, then preview, export or print.</p></div><div className={`rc-sync ${ready?"is-ready":""}`} role="status">{ready?<CheckCircleOutlineRounded/>:snapshot.connected===false?<CloudOffOutlined/>:<CircularProgress size={18}/>}<span>{ready?"Report data ready":problems.length?"Some sources unavailable":snapshot.connected===false?"Waiting for connection":"Loading report data"}</span></div></header>
+    <div className="rc-workspace"><aside className="rc-sidebar"><p className="rc-step">1 <span>Choose a report</span></p><nav aria-label="Report categories">{groups.map(group=><div key={group} className="rc-nav-group"><p>{group}</p>{REPORT_CATALOG.filter(d=>d.group===group).map(d=><button key={d.id} type="button" className={type===d.id?"is-selected":""} aria-current={type===d.id?"page":undefined} onClick={()=>chooseReport(d.id)}><ReportIcon type={d.id}/><span>{d.shortTitle}</span></button>)}</div>)}</nav></aside>
+    <main className="rc-main"><div className="rc-mobile-picker"><TextField select fullWidth label="Choose a report" value={type} onChange={e=>chooseReport(e.target.value as ReportType)}>{REPORT_CATALOG.map(d=><MenuItem key={d.id} value={d.id}>{d.shortTitle}</MenuItem>)}</TextField></div>
+      <section className="rc-panel rc-filter-panel" aria-label="Report filters"><div className="rc-panel-heading"><div><p className="rc-step">2 <span>Set report filters</span></p><h2>{definition.title}</h2><p>{definition.description}</p></div><div className="rc-report-icon"><ReportIcon type={type}/></div></div>
+      <div className="rc-filter-body">{!definition.static&&<div className="rc-presets" aria-label="Reporting period">{[["all","All dates"],["today","Today"],["month","This month"],["quarter","This quarter"],["year","This year"]].map(([value,title])=>{const dates=presetDates(value);return <button key={value} className={filters.startDate===dates.startDate&&filters.endDate===dates.endDate?"is-selected":""} onClick={()=>setFilters(f=>({...f,...dates}))}>{title}</button>;})}</div>}
+      <div className="rc-primary-filters"><TextField label="Search records" placeholder="Name, record ID or keyword" value={filters.search} onChange={e=>update("search",e.target.value)} fullWidth InputProps={{startAdornment:<InputAdornment position="start"><SearchRounded/></InputAdornment>}}/>{!definition.static&&<><TextField label="Start date" type="date" InputLabelProps={{shrink:true}} value={filters.startDate} onChange={e=>update("startDate",e.target.value)}/><TextField label="End date" type="date" InputLabelProps={{shrink:true}} value={filters.endDate} onChange={e=>update("endDate",e.target.value)} error={Boolean(filters.startDate&&filters.endDate&&filters.startDate>filters.endDate)}/></>}</div>
+      {(showPurok||statusOptions.length>0||showPriority||type==="monitoring")&&<div className="rc-secondary-filters">{showPurok&&selectField("purok","Purok",[...BUNUANAN_PUROKS,"Unassigned"])}{statusOptions.length>0&&selectField("status",type==="monitoring"?"Activity status":type==="rescue"?"Report group":"Record status",statusOptions)}{showPriority&&selectField("priority","SOS urgency",[{value:"CRITICAL",label:"Critical SOS"},{value:"MEDIUM",label:"Moderate SOS"},{value:"HIGH",label:"High priority SOS"},{value:"LOW",label:"Low priority SOS"}])}{type==="monitoring"&&<TextField select label="Filter activities by" value={filters.activityDate||"scheduled"} onChange={e=>update("activityDate",e.target.value as "scheduled"|"actual")}><MenuItem value="scheduled">Scheduled date</MenuItem><MenuItem value="actual">Actual date</MenuItem></TextField>}</div>}
+      {extraFilters&&<Accordion className="rc-more-filters" disableGutters elevation={0}><AccordionSummary expandIcon={<ExpandMoreRounded/>}>More filters</AccordionSummary><AccordionDetails><div className="rc-secondary-filters">{(isPopulation||isMonitoring)&&<>{picker("household","Household",householdOptions)}{picker("member","Household member",memberOptions)}</>}{isMonitoring&&<>{picker("program","Program",programOptions)}{selectField("scope","Monitoring scope",[{value:"person",label:"Individual"},{value:"household",label:"Household"}])}{selectField("staff","Assigned staff",[...new Set(data.monitoringCases.flatMap(c=>[c.assignedTo,...Object.values(c.activities||{}).map(a=>a.context?.assignedTo||"")]).filter(Boolean))].sort())}{selectField("condition","Health condition or focus",[...new Set(data.monitoringCases.flatMap(c=>[c.condition,...Object.values(c.activities||{}).map(a=>a.context?.condition||"")]).filter(Boolean))].sort())}</>}{isPopulation&&<>{selectField("sex","Sex",[{value:"male",label:"Male"},{value:"female",label:"Female"}])}{selectField("sector","Population sector",SECTORS.map(([value,label])=>({value,label})))}</>}{type==="rescue"&&picker("respondent","Respondent folder",respondentOptions)}</div></AccordionDetails></Accordion>}
+      <p className="rc-date-note">{definition.dateNote}</p>
+      {Object.entries(filters).some(([key,value])=>value&&!["activityDate","startDate","endDate"].includes(key))&&<div className="rc-filter-chips">{Object.entries(filters).filter(([key,value])=>value&&!["activityDate","startDate","endDate"].includes(key)).map(([key,value])=><Chip key={key} label={describeReportFilter(key as keyof ReportFilters,String(value),data)} onDelete={()=>update(key as keyof ReportFilters,"")}/>)}</div>}
+      </div><div className="rc-filter-footer"><Button startIcon={<RefreshRounded/>} onClick={()=>{setFilters({...DEFAULT_REPORT_FILTERS});setMessage("");}}>Reset filters</Button><Button variant="contained" disableElevation startIcon={<AssessmentOutlined/>} onClick={generate} disabled={!ready}>Generate report</Button></div></section>
+      {message&&<Alert severity="error" onClose={()=>setMessage("")}>{message}</Alert>}
+      {problems.length>0&&<Alert severity="error" action={<Button onClick={()=>setRetry(v=>v+1)}>Retry</Button>}>Unable to load {problems.map(s=>REPORT_SOURCE_LABELS[s]).join(", ")}. This report cannot be generated until these sources are available.</Alert>}
+      {snapshot.connected===false&&<Alert severity="warning">The database connection is unavailable. Generation and exports will resume when connected.</Alert>}
+      {!problems.length&&loading.length>0&&<Alert severity="info" action={slow?<Button onClick={()=>setRetry(v=>v+1)}>Retry</Button>:undefined}>{slow?"Still waiting for":"Loading"} {loading.map(s=>REPORT_SOURCE_LABELS[s]).join(", ")}.</Alert>}
+      <section ref={preview} className="rc-panel rc-preview" aria-label="Report preview"><div className="rc-preview-heading"><div><p className="rc-step">3 <span>Preview and export</span></p><h2>{generated?generated.title:"Your report preview"}</h2>{generated&&<p>{generated.periodLabel} • {generated.sections.length} sections • {generated.totalRows.toLocaleString()} table rows</p>}</div>{generated&&<div className="rc-actions"><Button variant="outlined" startIcon={<DownloadRounded/>} disabled={!canExport} onClick={()=>exportReport("csv")}>Export CSV</Button><Button variant="contained" disableElevation startIcon={<PrintRounded/>} disabled={!canExport} onClick={()=>exportReport("print")}>Print / Save PDF</Button></div>}</div>
+      {!generated?<div className="rc-empty"><div><AssessmentOutlined/></div><h3>Ready when you are</h3><p>Generate {definition.shortTitle.toLowerCase()} to review the records before printing.</p><span>Uses {definition.sources.length} report data sources</span></div>:<>
+      {dirty&&<Alert severity="warning" action={<Button disabled={!ready} onClick={generate}>Update report</Button>}>Filters changed. Update the report to enable exports for these filters.</Alert>}
+      {!dirty&&newData&&<Alert severity="info" action={<Button disabled={!ready} onClick={generate}>Refresh report</Button>}>New data is available. This preview and its exports retain the generated snapshot.</Alert>}
+      <div className="rc-metrics">{generated.metrics.map(m=><article key={m.label}><span>{m.label}</span><strong>{m.value}</strong>{m.helper&&<small>{m.helper}</small>}</article>)}</div>
+      <div className="rc-preview-tabs" role="tablist" aria-label="Preview view"><button role="tab" aria-selected={view==="overview"} onClick={()=>setView("overview")}>Report contents</button><button role="tab" aria-selected={view==="tables"} onClick={()=>setView("tables")}>View records</button></div>
+      {view==="overview"?<div className="rc-contents" role="tabpanel"><p>Open a section to review its records. Printing and CSV include every matching row across all sections.</p><div>{generated.sections.map((s,index)=><button key={s.id} onClick={()=>{setSectionId(s.id);setView("tables");}}><span className="rc-section-number">{String(index+1).padStart(2,"0")}</span><span><strong>{s.title}</strong><small>{s.group}</small></span><span className="rc-count">{s.rows.length.toLocaleString()}</span></button>)}</div></div>:section&&<div className="rc-records" role="tabpanel"><div className="rc-records-toolbar"><TextField select label="Report section" value={section.id} onChange={e=>setSectionId(e.target.value)}>{generated.sections.map(s=><MenuItem value={s.id} key={s.id}>{s.title} ({s.rows.length})</MenuItem>)}</TextField><Button startIcon={<PrintRounded/>} disabled={!canExport} onClick={()=>exportReport("print",true)}>Print this section</Button></div><SectionTable key={section.id} section={section}/></div>}
+      <div className="rc-preview-notes">{generated.notes.map(n=><p key={n}>{n}</p>)}<p>Generated {new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"short"}).format(new Date(generated.generatedAt))} • Philippine time</p></div></>}
+      </section>
+      <Accordion className="rc-source-panel" disableGutters elevation={0}><AccordionSummary expandIcon={<ExpandMoreRounded/>}>Data sources • {definition.sources.filter(s=>snapshot.status[s]==="ready").length} of {definition.sources.length} ready</AccordionSummary><AccordionDetails><ul>{definition.sources.map(s=><li key={s}><span>{REPORT_SOURCE_LABELS[s]}</span><span>{snapshot.status[s]==="ready"?`${data[s].length} records loaded`:snapshot.status[s]==="error"?`Unavailable: ${snapshot.errors[s]}`:"Loading"}</span></li>)}</ul><Button onClick={()=>setRetry(v=>v+1)} startIcon={<RefreshRounded/>}>Reload sources</Button></AccordionDetails></Accordion>
+    </main></div>
+  </div>;
 }

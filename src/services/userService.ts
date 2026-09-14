@@ -2,7 +2,7 @@ import { onValue, ref } from "firebase/database";
 import { database } from "../firebase/config";
 import type { User } from "../types";
 
-export function listenUsers(callback: (users: User[]) => void) {
+export function listenUsers(callback: (users: User[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, "users"), (snapshot) => {
     const raw = snapshot.val() as Record<string, Partial<User>> | null;
     const users: User[] = raw
@@ -33,5 +33,5 @@ export function listenUsers(callback: (users: User[]) => void) {
           .sort((a, b) => a.fullName.localeCompare(b.fullName))
       : [];
     callback(users);
-  });
+  }, onError);
 }

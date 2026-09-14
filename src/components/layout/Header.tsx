@@ -37,7 +37,7 @@ const searchableDestinations = [
   { label: "Inhabitants profiling", path: "/inhabitants" },
   { label: "Rescue reports", path: "/rescue-reports" },
   { label: "Announcements", path: "/announcements" },
-  { label: "Analytics", path: "/reports" },
+  { label: "Reports center", path: "/reports" },
   { label: "Audit logs", path: "/audit" },
   { label: "Administrator profile", path: "/profile" },
 ] as const;

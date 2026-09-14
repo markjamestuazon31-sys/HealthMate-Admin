@@ -1,7 +1,6 @@
 import {
   AddRounded,
   CheckCircleRounded,
-  EmergencyRounded,
   LocalHospitalRounded,
   PhoneInTalkRounded,
   PublicRounded,
@@ -428,7 +427,7 @@ export default function EmergencyDirectory() {
                         bgcolor: "rgba(180,35,24,.09)",
                       }}
                     >
-                      <EmergencyRounded />
+                      <LocalHospitalRounded />
                     </Box>
                     <Box>
                       <Typography fontWeight={900}>

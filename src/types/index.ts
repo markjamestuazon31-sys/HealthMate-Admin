@@ -228,6 +228,41 @@ export interface Responder {
   updatedAt?: number;
 }
 
+
+export type AdminResponderConversationType = "ADMIN_RESPONDER" | "ADMIN_RESPONDER_CASE";
+
+export interface AdminResponderConversation {
+  conversationId: string;
+  otherParticipantUid: string;
+  conversationType: AdminResponderConversationType;
+  emergencyIncidentId?: string;
+  lastMessageText?: string;
+  lastMessageType?: string;
+  lastMessageSenderUid?: string;
+  lastMessageAt: number;
+  unreadCount: number;
+  muted: boolean;
+  archived: boolean;
+}
+
+export interface AdminResponderMessage {
+  messageId: string;
+  senderUid: string;
+  receiverUid: string;
+  senderId?: string;
+  receiverId?: string;
+  type: "TEXT" | "BROADCAST" | string;
+  text: string;
+  sentAt: number;
+  timestamp?: number;
+  deliveredAt: number;
+  seenAt: number;
+  replyToMessageId?: string;
+  status: "SENT" | "DELIVERED" | "SEEN" | string;
+  seen: boolean;
+  broadcastId?: string;
+}
+
 export interface Barangay {
   id: string;
   name: string;
@@ -320,7 +355,7 @@ export interface EmergencyLocationPoint {
   longitude: number;
   accuracy?: number;
   updatedAt: number;
-  source?: "incident" | "live_location" | "legacy" | "missing";
+  source?: "incident" | "analytics" | "live_location" | "legacy" | "missing";
 }
 
 export type ResponseTeamRole = "COORDINATOR" | "SUPPORTING";

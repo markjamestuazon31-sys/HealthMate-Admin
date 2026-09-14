@@ -4,6 +4,7 @@ import {
   CheckCircleRounded,
   CloseRounded,
   HealthAndSafetyOutlined,
+  ForumOutlined,
   LocationOnRounded,
   MapRounded,
   MedicalInformationOutlined,
@@ -936,6 +937,18 @@ export default function EmergencyDialog({
                           }
                         />
                       </Stack>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<ForumOutlined />}
+                        sx={{ mt: 1.5 }}
+                        onClick={() => {
+                          close();
+                          navigate(`/messages?responderUid=${encodeURIComponent(response.responderUid)}&incidentId=${encodeURIComponent(currentEmergency.id)}`);
+                        }}
+                      >
+                        Message responder
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}

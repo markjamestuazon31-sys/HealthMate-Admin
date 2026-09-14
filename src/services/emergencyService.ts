@@ -39,6 +39,7 @@ export interface EmergencyDataFailure {
 export function listenEmergencies(
   callback: (data: Emergency[]) => void,
   onError?: (failure: EmergencyDataFailure) => void,
+  options?: { waitForAll?: boolean },
 ) {
   const state: EmergencyBuildInput = {
     emergencyRaw: {},
@@ -49,9 +50,16 @@ export function listenEmergencies(
     respondentRaw: {},
     recipientRaw: {},
     liveLocationRaw: {},
+    analyticsRaw: {},
   };
 
-  const emit = () => callback(buildEmergencyList(state));
+  const loaded = new Set<string>();
+  const expectedInitialSources = 9;
+  const emit = () => {
+    if (!options?.waitForAll || loaded.size === expectedInitialSources) {
+      callback(buildEmergencyList(state));
+    }
+  };
 
   const listen = (
     path: string,
@@ -61,9 +69,11 @@ export function listenEmergencies(
       ref(database, path),
       (snapshot) => {
         assign(snapshot);
+        loaded.add(path);
         emit();
       },
       (caught) => {
+        loaded.delete(path);
         const error =
           caught instanceof Error
             ? caught
@@ -97,6 +107,13 @@ export function listenEmergencies(
     }),
     listen("emergencyIncidentRecipients", (snapshot) => {
       state.recipientRaw = snapshot.val() ?? {};
+    }),
+    // Immediate map fallback: incidentAnalytics stores the SOS coordinates
+    // captured at creation time. This prevents the live map from waiting for
+    // the resident live-location service when emergencyLocations is missing
+    // or has not synchronized yet.
+    listen("incidentAnalytics", (snapshot) => {
+      state.analyticsRaw = snapshot.val() ?? {};
     }),
   ];
 

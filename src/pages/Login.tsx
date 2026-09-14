@@ -1,178 +1,164 @@
-import { LockOutlined, MedicalServicesOutlined } from "@mui/icons-material";
 import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { FormEvent, useEffect, useState } from "react";
+  ArrowForwardRounded, AssessmentOutlined, EmailOutlined, GroupsOutlined,
+  HealthAndSafetyOutlined, LockOutlined, PlaceOutlined, SmartphoneOutlined,
+  VisibilityOffOutlined, VisibilityOutlined,
+} from "@mui/icons-material";
+import { Alert, Button, CircularProgress, IconButton, InputAdornment, TextField } from "@mui/material";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import healthMateLogo from "../assets/healthmate-logo.png";
 import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../firebase/auth";
+import { friendlyAccessError, friendlyLoginError, loginDestination } from "../utils/loginPresentation";
+import "../styles/login.css";
 
-function friendlyAuthMessage(error: unknown): string {
-  const code =
-    typeof error === "object" && error !== null && "code" in error
-      ? String((error as { code?: unknown }).code ?? "")
-      : "";
-  const message = error instanceof Error ? error.message : "Unable to sign in.";
-  const reason = `${code} ${message}`;
-  if (
-    reason.includes("auth/invalid-credential") ||
-    reason.includes("auth/invalid-login-credentials") ||
-    reason.includes("auth/user-not-found") ||
-    reason.includes("auth/wrong-password")
-  ) {
-    return "The email or password is incorrect.";
-  }
-  if (reason.includes("auth/user-disabled")) return "This Firebase Authentication account is disabled.";
-  if (reason.includes("auth/too-many-requests")) return "Too many attempts. Try again later.";
-  if (reason.includes("auth/invalid-email")) return "Enter a valid email address.";
-  if (reason.includes("auth/network-request-failed")) return "Unable to reach. Check your connection and try again.";
-  return message;
+type Phase = "idle" | "submitting" | "verifying";
+function LoginBrand({ mobile = false }: { mobile?: boolean }) {
+  return <div className={`hm-login-brand${mobile ? " hm-login-brand-mobile" : ""}`}>
+    <img src={healthMateLogo} alt="" width="56" height="56" />
+    <div><strong>HealthMate</strong><span>Care. Connect. Protect.</span></div>
+  </div>;
 }
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [takingLonger, setTakingLonger] = useState(false);
+  const inFlight = useRef(false);
+  const attempt = useRef(0);
+  const mounted = useRef(true);
+  const emailInput = useRef<HTMLInputElement>(null);
+  const passwordInput = useRef<HTMLInputElement>(null);
+  const alertBox = useRef<HTMLDivElement>(null);
   const { user, role, loading, error: accessError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const authorized = Boolean(user && (role === "administrator" || role === "admin"));
+  const endingRejectedSession = Boolean(user && accessError && !authorized);
+  const busy = loading || phase !== "idle" || authorized || endingRejectedSession;
+  const message = error || (phase === "idle" && !loading ? friendlyAccessError(accessError) : "");
+  const actionLabel = endingRejectedSession ? "Closing session…" : phase === "submitting" ? "Signing in…" : phase === "verifying" || (loading && user)
+    ? "Verifying access…" : loading ? "Checking session…" : authorized ? "Opening workspace…" : "Sign in";
 
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
-    if (!loading && user && role) {
-      const requestedPath = (location.state as { from?: string } | null)?.from;
-      const allowedDestinations = new Set([
-        "/dashboard",
-        "/emergencies",
-        "/map",
-        "/residents",
-        "/announcements",
-        "/reports",
-        "/responders",
-        "/directory",
-        "/rescue-reports",
-        "/audit",
-      ]);
-      navigate(requestedPath && allowedDestinations.has(requestedPath) ? requestedPath : "/dashboard", {
-        replace: true,
-      });
+    if (!loading && authorized) {
+      const requested = (location.state as { from?: unknown } | null)?.from;
+      navigate(loginDestination(requested), { replace: true });
     }
-  }, [loading, location.state, navigate, role, user]);
+  }, [authorized, loading, location.state, navigate]);
+  useEffect(() => {
+    if (!loading && accessError) {
+      attempt.current += 1;
+      inFlight.current = false;
+      setPhase("idle");
+      setPassword("");
+      setShowPassword(false);
+    }
+  }, [accessError, loading]);
+  useEffect(() => {
+    if (message) alertBox.current?.focus();
+  }, [message]);
+  useEffect(() => {
+    setTakingLonger(false);
+    if (!busy) return;
+    const timer = window.setTimeout(() => setTakingLonger(true), 12000);
+    return () => window.clearTimeout(timer);
+  }, [busy]);
 
-  async function handleLogin(event: FormEvent) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!email.trim() || !password) {
-      setError("Enter both your email and password.");
+    if (busy || inFlight.current) return;
+    const issues = {
+      email: !email.trim() ? "Enter your email address." : emailInput.current?.validity.typeMismatch ? "Enter a valid email address." : "",
+      password: !password ? "Enter your password." : "",
+    };
+    setFieldErrors(issues);
+    setError("");
+    if (issues.email || issues.password) {
+      (issues.email ? emailInput : passwordInput).current?.focus();
       return;
     }
-
-    setSubmitting(true);
-    setError("");
+    inFlight.current = true;
+    const attemptId = ++attempt.current;
+    setPhase("submitting");
     try {
       await loginUser(email.trim(), password);
-    } catch (authError) {
-      setError(friendlyAuthMessage(authError));
-    } finally {
-      setSubmitting(false);
+      if (mounted.current && attemptId === attempt.current && inFlight.current) setPhase("verifying");
+      // AuthContext verifies the active administrator record before navigation.
+    } catch (caught) {
+      if (mounted.current && attemptId === attempt.current) {
+        inFlight.current = false;
+        setPhase("idle");
+        setError(friendlyLoginError(caught));
+      }
     }
   }
+  function checkCapsLock(event: KeyboardEvent<HTMLDivElement>) {
+    setCapsLock(event.getModifierState?.("CapsLock") === true);
+  }
 
-  return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: { xs: "1fr", lg: "minmax(420px, 0.9fr) minmax(520px, 1.1fr)" },
-        bgcolor: "background.default",
-      }}
-    >
-      <Box
-        sx={{
-          display: { xs: "none", lg: "flex" },
-          position: "relative",
-          overflow: "hidden",
-          p: 7,
-          color: "white",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          background: "linear-gradient(145deg, #071C2C 0%, #0B3C5D 54%, #146C94 100%)",
-        }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <MedicalServicesOutlined sx={{ fontSize: 34 }} />
-          <Typography variant="h5">HealthMate</Typography>
-        </Stack>
-        <Box sx={{ maxWidth: 560 }}>
-          <Typography variant="h3" fontWeight={850} lineHeight={1.08} sx={{ mb: 2 }}>
-            Emergency coordination in one secure workspace.
-          </Typography>
-          <Typography sx={{ color: "rgba(255,255,255,0.72)", fontSize: 17, lineHeight: 1.7 }}>
-            Monitor mobile SOS alerts, locate residents, assign responders, and document response actions in real time.
-          </Typography>
-        </Box>
-        <Typography sx={{ color: "rgba(255,255,255,0.54)", fontSize: 13 }}>
-          Authorized administrators only
-        </Typography>
-      </Box>
+  return <main className="hm-login-page">
+    <div className="hm-login-shell">
+      <aside className="hm-login-hero" aria-label="About HealthMate">
+        <LoginBrand />
+        <div className="hm-login-hero-content">
+          <p className="hm-login-eyebrow">COMMUNITY HEALTH ADMINISTRATION</p>
+          <h2>Coordinate care.<br />Support your<br className="hm-login-title-break" /> community.</h2>
+          <p className="hm-login-hero-description">One workspace for emergency response, community records and barangay programs.</p>
+          <ul className="hm-login-features">
+            <li><span><HealthAndSafetyOutlined /></span><div><strong>Emergency response</strong><p>Coordinate SOS alerts and rescue operations.</p></div></li>
+            <li><span><GroupsOutlined /></span><div><strong>Community records</strong><p>Organize households and inhabitant profiles.</p></div></li>
+            <li><span><AssessmentOutlined /></span><div><strong>Programs and reports</strong><p>Follow up activities and review outcomes.</p></div></li>
+          </ul>
+        </div>
+        <div className="hm-login-location"><PlaceOutlined /><span>Barangay Bunuanan<span>City of Catbalogan</span></span></div>
+      </aside>
 
-      <Box sx={{ display: "grid", placeItems: "center", p: { xs: 2, sm: 4 } }}>
-        <Card sx={{ width: "100%", maxWidth: 470, borderRadius: 4 }}>
-          <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
-            <Box sx={{ display: { lg: "none" }, mb: 3 }}>
-              <Typography variant="h5" color="primary.dark">
-                HealthMate Admin
-              </Typography>
-            </Box>
-            <Typography variant="h4" sx={{ mb: 1 }}>
-              Welcome back
-            </Typography>
-            <Typography color="text.secondary" sx={{ mb: 3.5 }}>
-              Sign in with your authorized administrator account. Responders use the HealthMate Android app.
-            </Typography>
+      <section className="hm-login-form-panel" aria-labelledby="hm-login-title">
+        <LoginBrand mobile />
+        <div className="hm-login-form-content">
+          <div className="hm-login-access-label"><span><LockOutlined /></span>Administrator portal</div>
+          <header className="hm-login-form-heading"><h1 id="hm-login-title">Welcome back</h1><p>Sign in to your HealthMate workspace.</p></header>
 
-            <Stack spacing={2} component="form" onSubmit={handleLogin}>
-              {(error || accessError) && <Alert severity="error">{error || accessError}</Alert>}
-              <TextField
-                fullWidth
-                label="Email address"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-              <TextField
-                fullWidth
-                label="Password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockOutlined fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Button fullWidth type="submit" variant="contained" size="large" disabled={submitting}>
-                {submitting ? <CircularProgress size={22} color="inherit" /> : "Sign in"}
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
-    </Box>
-  );
+          <form className="hm-login-form" onSubmit={handleLogin} noValidate aria-label="Administrator sign in" aria-busy={busy}>
+            {message && <div ref={alertBox} tabIndex={-1} className="hm-login-alert-focus"><Alert severity="error">{message}</Alert></div>}
+            <div className="hm-login-field"><label htmlFor="hm-login-email">Email address</label>
+              <TextField id="hm-login-email" name="email" type="email" fullWidth required disabled={busy}
+                inputRef={emailInput} autoComplete="username" placeholder="Enter your email address"
+                value={email} error={Boolean(fieldErrors.email)} helperText={fieldErrors.email || undefined}
+                inputProps={{ inputMode: "email", autoCapitalize: "none", spellCheck: false }}
+                onChange={event => { setEmail(event.target.value); setFieldErrors(current => ({ ...current, email: "" })); setError(""); }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><EmailOutlined /></InputAdornment> }} />
+            </div>
+            <div className="hm-login-field"><label htmlFor="hm-login-password">Password</label>
+              <TextField id="hm-login-password" name="password" type={showPassword ? "text" : "password"} fullWidth required disabled={busy}
+                inputRef={passwordInput} autoComplete="current-password" placeholder="Enter your password"
+                value={password} error={Boolean(fieldErrors.password)} helperText={fieldErrors.password || undefined}
+                onChange={event => { setPassword(event.target.value); setFieldErrors(current => ({ ...current, password: "" })); setError(""); }}
+                onKeyDown={checkCapsLock} onKeyUp={checkCapsLock} onBlur={() => setCapsLock(false)}
+                inputProps={{ "aria-describedby": [fieldErrors.password ? "hm-login-password-helper-text" : "", capsLock ? "hm-login-caps-lock" : ""].filter(Boolean).join(" ") || undefined }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><LockOutlined /></InputAdornment>, endAdornment: <InputAdornment position="end"><IconButton type="button" disabled={busy} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onMouseDown={event => event.preventDefault()} onClick={() => setShowPassword(value => !value)} edge="end">{showPassword ? <VisibilityOffOutlined /> : <VisibilityOutlined />}</IconButton></InputAdornment> }} />
+              {capsLock && <p id="hm-login-caps-lock" className="hm-login-caps-lock" role="status">Caps Lock is on.</p>}
+            </div>
+            <Button fullWidth type="submit" variant="contained" disabled={busy} className="hm-login-submit" endIcon={busy ? undefined : <ArrowForwardRounded />}>
+              {busy && <CircularProgress size={19} color="inherit" aria-hidden="true" />}<span>{actionLabel}</span>
+            </Button>
+            <span className="hm-login-sr-only" role="status" aria-live="polite">{busy ? actionLabel : ""}</span>
+            {takingLonger && <div className="hm-login-waiting" role="status"><p>This is taking longer than usual. Check your connection, then reload the page if needed.</p><Button type="button" size="small" onClick={() => window.location.reload()}>Reload page</Button></div>}
+          </form>
+
+          <details className="hm-login-help"><summary>Need help signing in?</summary><p>Use the email assigned to your administrator account. For password or access assistance, contact your system administrator.</p></details>
+          <div className="hm-login-mobile-note"><SmartphoneOutlined /><p>Residents and respondents use the HealthMate mobile apps.</p></div>
+        </div>
+        <footer className="hm-login-form-footer"><LockOutlined /><span>For authorized administrators only</span></footer>
+      </section>
+    </div>
+    <p className="hm-login-page-footer">HealthMate Administration<span aria-hidden="true">•</span>Barangay Bunuanan, Catbalogan City</p>
+  </main>;
 }

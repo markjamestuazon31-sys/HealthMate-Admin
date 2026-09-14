@@ -21,6 +21,7 @@ export interface EmergencyBuildInput {
   respondentRaw: RecordMap;
   recipientRaw?: Record<string, Record<string, boolean>>;
   liveLocationRaw?: RecordMap;
+  analyticsRaw?: RecordMap;
 }
 
 function toNumber(value: unknown, fallback = 0) {
@@ -88,12 +89,16 @@ function normalizeLocationPoint(value: UnknownRecord | undefined): EmergencyLoca
 
 function resolveBestLocation(
   incidentLocation: EmergencyLocationPoint | undefined,
+  analyticsLocation: EmergencyLocationPoint | undefined,
   liveLocation: EmergencyLocationPoint | undefined,
   legacyPoint: EmergencyLocationPoint | undefined,
 ): EmergencyLocationPoint | undefined {
   const candidates = [
     incidentLocation
-      ? { point: incidentLocation, source: "incident" as const, rank: 3 }
+      ? { point: incidentLocation, source: "incident" as const, rank: 4 }
+      : null,
+    analyticsLocation
+      ? { point: analyticsLocation, source: "analytics" as const, rank: 3 }
       : null,
     liveLocation
       ? { point: liveLocation, source: "live_location" as const, rank: 2 }
@@ -185,11 +190,13 @@ export function normalizeEmergency(
   respondentRaw: RecordMap,
   liveLocationValue?: UnknownRecord,
   recipientValue?: Record<string, boolean>,
+  analyticsValue?: UnknownRecord,
 ): Emergency {
   const legacyLocation = value.location as UnknownRecord | undefined;
   const incidentLocation = normalizeLocationPoint(
     (locationValue?.patient as UnknownRecord | undefined) ?? locationValue,
   );
+  const analyticsLocation = normalizeLocationPoint(analyticsValue);
   const liveLocation = normalizeLocationPoint(liveLocationValue);
   const legacyPoint = normalizeLocationPoint(legacyLocation ?? {
     latitude: value.latitude,
@@ -199,6 +206,7 @@ export function normalizeEmergency(
   });
   const resolvedLocation = resolveBestLocation(
     incidentLocation,
+    analyticsLocation,
     liveLocation,
     legacyPoint,
   );
@@ -285,6 +293,7 @@ export function buildEmergencyList(input: EmergencyBuildInput): Emergency[] {
         input.respondentRaw,
         input.liveLocationRaw?.[patientUid],
         input.recipientRaw?.[id],
+        input.analyticsRaw?.[id],
       );
     })
     .sort((a, b) => b.createdAt - a.createdAt);

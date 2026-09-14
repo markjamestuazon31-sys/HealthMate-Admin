@@ -1,0 +1,174 @@
+.hm-login-page {
+  --login-ink: #18334e;
+  --login-muted: #52677d;
+  --login-blue: #0b5ed7;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 40px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--login-ink);
+  background: radial-gradient(ellipse at 8% 0%, #eaf1fa 0%, transparent 46%), #f5f7fb;
+  font: 16px/1.5 "Segoe UI", Inter, Arial, sans-serif;
+}
+.hm-login-page *, .hm-login-page *::before, .hm-login-page *::after { box-sizing: border-box; }
+.hm-login-page h1, .hm-login-page h2, .hm-login-page p { margin: 0; }
+.hm-login-shell {
+  display: grid;
+  grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
+  width: 100%;
+  max-width: 1140px;
+  min-height: 710px;
+  background: #fff;
+  border: 1px solid #dce5ef;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 70px #2039560c, 0 4px 12px #20395606;
+}
+.hm-login-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 38px 44px 34px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(150deg, #102c48 0%, #103c5f 65%, #174e6c 100%);
+  isolation: isolate;
+}
+.hm-login-hero::before, .hm-login-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  border: 1px solid #ffffff0c;
+  width: 500px;
+  height: 500px;
+  right: -330px;
+  bottom: -175px;
+}
+.hm-login-hero::after { width: 680px; height: 680px; right: -420px; bottom: -265px; }
+.hm-login-brand { display: flex; align-items: center; gap: 13px; }
+.hm-login-brand img { display: block; width: 56px; height: 56px; object-fit: contain; background: white; border-radius: 13px; flex-shrink: 0; }
+.hm-login-brand strong { font-size: 25px; font-weight: 720; line-height: 1.2; letter-spacing: -.6px; display: block; }
+.hm-login-brand span { display: block; font-size: 12px; color: #c2d4e4; margin-top: 5px; letter-spacing: .3px; }
+.hm-login-eyebrow { color: #acc6de; font-size: 11px; font-weight: 650; letter-spacing: 1.45px; margin-bottom: 16px !important; }
+.hm-login-hero h2 { font-size: 39px; line-height: 1.18; font-weight: 680; letter-spacing: -1.1px; }
+.hm-login-hero-description { font-size: 15px; line-height: 1.7; color: #c9d8e6; max-width: 360px; margin-top: 18px !important; }
+.hm-login-features { list-style: none; padding: 0; margin: 30px 0 0; display: flex; flex-direction: column; gap: 20px; }
+.hm-login-features li { display: flex; align-items: center; gap: 14px; }
+.hm-login-features li>span { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #ffffff1c; background: #ffffff09; border-radius: 11px; color: #c0d8ed; flex-shrink: 0; }
+.hm-login-features svg { font-size: 23px; }
+.hm-login-features strong { display: block; font-size: 14px; font-weight: 620; }
+.hm-login-features p { font-size: 13px; color: #bfd1e1; line-height: 1.5; margin-top: 3px; }
+.hm-login-location { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #d4e2ee; padding-top: 21px; border-top: 1px solid #ffffff1a; }
+.hm-login-location svg { font-size: 21px; color: #aac6dd; }
+.hm-login-location>span>span { display: block; font-size: 12px; color: #b4cadc; margin-top: 1px; }
+.hm-login-form-panel { padding: 54px 64px 28px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.hm-login-form-content { width: 100%; max-width: 398px; margin: auto; padding: 18px 0; }
+.hm-login-access-label { display: flex; align-items: center; gap: 8px; color: var(--login-blue); font-size: 13px; font-weight: 650; margin-bottom: 18px; }
+.hm-login-access-label>span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: #edf4ff; }
+.hm-login-access-label svg { font-size: 17px; }
+.hm-login-form-heading h1 { font-size: 33px; line-height: 1.2; letter-spacing: -.8px; font-weight: 720; }
+.hm-login-form-heading p { margin-top: 11px; font-size: 16px; line-height: 1.6; color: var(--login-muted); }
+.hm-login-form { display: flex; flex-direction: column; gap: 21px; margin-top: 31px; }
+.hm-login-field { display: flex; flex-direction: column; gap: 8px; }
+.hm-login-field>label { font-size: 14px; color: #30475e; font-weight: 650; cursor: text; }
+.hm-login-page .MuiInputBase-root { font-family: inherit; font-size: 16px; min-height: 54px; border-radius: 10px; background: #fff; color: var(--login-ink); }
+.hm-login-page .MuiOutlinedInput-notchedOutline { border-color: #c6d2df; }
+.hm-login-page .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: #8cabc9; }
+.hm-login-page .MuiOutlinedInput-root.Mui-focused { box-shadow: 0 0 0 3px #0b5ed710; }
+.hm-login-page .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-color: var(--login-blue); border-width: 1.5px; }
+.hm-login-page .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline { border-color: #c8352c; }
+.hm-login-page .MuiInputBase-input { padding-top: 15px; padding-bottom: 15px; font: inherit; height: auto; line-height: 1.4; min-width: 0; }
+.hm-login-page .MuiInputBase-input::placeholder { color: #687c91; opacity: 1; font-size: 15px; }
+.hm-login-page .MuiInputAdornment-root { color: #758a9e; }
+.hm-login-page .MuiInputAdornment-root>svg { font-size: 21px; }
+.hm-login-page .MuiIconButton-root { min-width: 44px; min-height: 44px; border-radius: 8px; color: #62798e; }
+.hm-login-page .MuiIconButton-root svg { font-size: 21px; }
+.hm-login-page .MuiFormHelperText-root { font: 13px/1.5 "Segoe UI", Arial, sans-serif; margin: 6px 0 0; }
+.hm-login-page .hm-login-submit {
+  min-height: 54px;
+  border-radius: 10px;
+  background: var(--login-blue);
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: 0 5px 13px #0b5ed71c;
+  gap: 10px;
+  margin-top: 3px;
+}
+.hm-login-page .hm-login-submit:hover { background: #084fae; box-shadow: 0 6px 16px #0b5ed726; }
+.hm-login-page .hm-login-submit.Mui-disabled { background: #e7edf4; color: #4f667e; box-shadow: none; }
+.hm-login-page button:focus-visible, .hm-login-help summary:focus-visible { outline: 3px solid #82afea; outline-offset: 3px; }
+.hm-login-page .MuiAlert-root { border: 1px solid #f1c2be; background: #fff4f2; border-radius: 9px; color: #8f251d; font: 14px/1.5 "Segoe UI", Arial, sans-serif; align-items: flex-start; }
+.hm-login-page .MuiAlert-message { padding: 5px 0; }
+.hm-login-alert-focus:focus { outline: none; }
+.hm-login-caps-lock { color: #88540c; font-size: 13px; }
+.hm-login-waiting { font-size: 14px; color: #52677d; padding: 12px; background: #f4f7fb; border-radius: 9px; }
+.hm-login-waiting .MuiButton-root { font-family: inherit; text-transform: none; padding-left: 0; font-size: 14px; min-height: 44px; }
+.hm-login-help { margin-top: 17px; font-size: 14px; }
+.hm-login-help summary { color: #255d9d; cursor: pointer; min-height: 44px; display: list-item; padding: 10px 0; list-style-position: inside; font-weight: 550; }
+.hm-login-help p { padding: 8px 12px 12px; color: var(--login-muted); line-height: 1.6; background: #f7f9fc; border-radius: 8px; }
+.hm-login-mobile-note { display: flex; gap: 10px; align-items: flex-start; margin-top: 22px; padding-top: 23px; border-top: 1px solid #e6ecf3; }
+.hm-login-mobile-note svg { font-size: 20px; color: #8094a6; flex-shrink: 0; margin-top: 1px; }
+.hm-login-mobile-note p { font-size: 13px; line-height: 1.6; color: var(--login-muted); }
+.hm-login-form-footer { display: flex; align-items: center; justify-content: center; gap: 7px; color: #687f93; font-size: 12px; margin-top: 24px; }
+.hm-login-form-footer svg { font-size: 14px; }
+.hm-login-page-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; color: #62778c; font-size: 12px; text-align: center; margin-top: 21px !important; }
+.hm-login-brand-mobile { display: none; }
+.hm-login-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (min-width: 1500px) {
+  .hm-login-shell { min-height: 752px; }
+  .hm-login-hero { padding: 43px 46px 38px; }
+  .hm-login-form-panel { padding: 56px 68px 34px; }
+  .hm-login-hero h2 { font-size: 42px; }
+}
+@media (max-width: 1050px) {
+  .hm-login-page { padding: 28px 22px 20px; }
+  .hm-login-hero { padding: 34px 30px 30px; }
+  .hm-login-hero h2 { font-size: 34px; }
+  .hm-login-form-panel { padding: 40px 36px 25px; }
+  .hm-login-shell { min-height: 690px; }
+  .hm-login-title-break { display: none; }
+}
+@media (max-width: 800px) {
+  .hm-login-page { padding: 30px 20px 22px; }
+  .hm-login-shell { display: block; min-height: 0; max-width: 510px; border-radius: 20px; }
+  .hm-login-hero { display: none; }
+  .hm-login-form-panel { padding: 30px 38px 24px; }
+  .hm-login-brand-mobile { display: flex; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e5ecf3; }
+  .hm-login-brand-mobile strong { color: #18334e; font-size: 23px; }
+  .hm-login-brand-mobile span { color: #61798f; }
+  .hm-login-brand-mobile img { border: 1px solid #e5ecf3; }
+  .hm-login-form-content { padding: 0; }
+  .hm-login-form-heading h1 { font-size: 30px; }
+  .hm-login-form-footer { margin-top: 26px; }
+}
+@media (max-width: 440px) {
+  .hm-login-page { padding: 18px 12px; justify-content: flex-start; }
+  .hm-login-form-panel { padding: 24px 21px; }
+  .hm-login-shell { border-radius: 16px; }
+  .hm-login-brand-mobile { padding-bottom: 20px; margin-bottom: 22px; }
+  .hm-login-brand img { width: 48px; height: 48px; border-radius: 11px; }
+  .hm-login-form-heading h1 { font-size: 28px; }
+  .hm-login-form-heading p { font-size: 15px; }
+  .hm-login-form { margin-top: 25px; gap: 19px; }
+  .hm-login-page-footer { max-width: 280px; gap: 3px 7px; font-size: 11px; }
+}
+@media (max-height: 780px) and (min-width: 801px) {
+  .hm-login-page { justify-content: flex-start; padding-top: 22px; }
+  .hm-login-shell { min-height: 650px; }
+  .hm-login-hero { gap: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hm-login-page *, .hm-login-page *::before, .hm-login-page *::after { transition: none !important; animation: none !important; }
+}

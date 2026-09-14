@@ -218,8 +218,7 @@ function contactsFromSnapshot(
 
 export function listenBarangayContacts(
   barangayId: string,
-  callback: (items: EmergencyDirectoryContact[]) => void,
-) {
+  callback: (items: EmergencyDirectoryContact[]) => void, onError?: (error: Error) => void) {
   if (!barangayId) {
     callback([]);
     return () => undefined;
@@ -227,21 +226,22 @@ export function listenBarangayContacts(
   return onValue(
     ref(database, `barangays/${barangayId}/emergencyContacts`),
     (snapshot) => callback(contactsFromSnapshot(snapshot.val())),
+    onError,
   );
 }
 
 export function listenBunuananContacts(
   callback: (items: EmergencyDirectoryContact[]) => void,
+  onError?: (error: Error) => void,
 ) {
-  return listenBarangayContacts(BUNUANAN_BARANGAY_ID, callback);
+  return listenBarangayContacts(BUNUANAN_BARANGAY_ID, callback, onError);
 }
 
 export function listenGlobalContacts(
-  callback: (items: EmergencyDirectoryContact[]) => void,
-) {
+  callback: (items: EmergencyDirectoryContact[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, "globalEmergencyContacts"), (snapshot) => {
     callback(contactsFromSnapshot(snapshot.val()));
-  });
+  }, onError);
 }
 
 export type DirectoryScope = "global" | "barangay";

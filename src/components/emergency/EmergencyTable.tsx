@@ -19,6 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { Emergency } from "../../types";
+import { reportedUrgencyLabel } from "../../services/sosUrgency";
 import EmergencyAvatar from "./EmergencyAvatar";
 import { EmergencyPriorityChip, EmergencyStatusChip, isTerminalStatus } from "./EmergencyStatusChip";
 
@@ -81,7 +82,11 @@ export default function EmergencyTable({ data, onView }: { data: Emergency[]; on
                 <TableCell>
                   <Stack spacing={0.7} alignItems="flex-start">
                     <EmergencyPriorityChip priority={item.priority} />
-                    <Typography color="text.secondary" fontSize={14}>{item.urgencyReviewedAt ? "Admin reviewed" : item.reportedUrgency ? "Reported urgency" : "Previous record"}</Typography>
+                    <Typography color="text.secondary" fontSize={14}>
+                      {item.reportedUrgency
+                        ? `Resident selected: ${reportedUrgencyLabel(item.reportedUrgency)}`
+                        : "Previous record"}
+                    </Typography>
                     <Typography fontWeight={760}>{item.type}</Typography>
                     <Typography color="text.secondary" fontSize={14}>
                       {new Date(item.createdAt).toLocaleString()}

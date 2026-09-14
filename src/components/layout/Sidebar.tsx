@@ -1,6 +1,7 @@
 import {
   AssessmentOutlined,
   FactCheckOutlined,
+  ForumOutlined,
   CampaignOutlined,
   ChevronRightRounded,
   DashboardOutlined,
@@ -61,10 +62,11 @@ const menuSections = [
   {
     label: "Communication & records",
     items: [
+      { title: "Responder messages", path: "/messages", icon: <ForumOutlined /> },
       { title: "Monitoring reports", path: "/monitoring-reports", icon: <FactCheckOutlined /> },
       { title: "Rescue reports", path: "/rescue-reports", icon: <DescriptionOutlined /> },
       { title: "Announcements", path: "/announcements", icon: <CampaignOutlined /> },
-      { title: "Analytics", path: "/reports", icon: <AssessmentOutlined /> },
+      { title: "Reports center", path: "/reports", icon: <AssessmentOutlined /> },
       { title: "Audit logs", path: "/audit", icon: <HistoryOutlined /> },
     ],
   },

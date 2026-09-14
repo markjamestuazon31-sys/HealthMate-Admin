@@ -69,7 +69,6 @@ const HM_RED = "#D92D20";
 const HM_RED_DARK = "#B42318";
 const HM_RED_DEEP = "#7A271A";
 const HM_RED_LIGHT = "#F97066";
-const HM_RED_SOFT = "#FFF1F0";
 
 export default function Dashboard() {
   const navigate = useNavigate();

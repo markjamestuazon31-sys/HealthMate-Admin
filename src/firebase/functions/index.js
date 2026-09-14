@@ -36,6 +36,7 @@ exports.sendQueuedHealthMateNotification = onValueCreated(
 
     const type = stringValue(request.type, "general");
     const incidentId = firstNonBlank(request.incidentId, request.emergencyId);
+    const sosUrgency = normalizeSosUrgency(request.sosUrgency || request.reportedUrgency);
     const urgent = isUrgent(type, request.priority);
     const createdAt = numberValue(request.createdAt, Date.now());
     const inboxRef = getDatabase().ref(`notifications/${targetUserId}/${requestId}`);
@@ -45,10 +46,15 @@ exports.sendQueuedHealthMateNotification = onValueCreated(
       message: stringValue(request.message || request.body, "Open HealthMate to view the update."),
       type,
       priority: urgent ? "HIGH" : "NORMAL",
+      sosUrgency,
+      reportedUrgency: sosUrgency === "CRITICAL" ? "CRITICAL" : sosUrgency === "MEDIUM" ? "MODERATE" : "",
       emergencyId: incidentId,
       incidentId,
       callId: stringValue(request.callId),
       announcementId: stringValue(request.announcementId),
+      conversationId: stringValue(request.conversationId),
+      messageId: stringValue(request.messageId),
+      broadcastId: stringValue(request.broadcastId),
       createdBy: stringValue(request.createdBy),
       createdAt,
       read: false,
@@ -76,6 +82,8 @@ exports.sendQueuedHealthMateNotification = onValueCreated(
       ),
       type,
       priority: urgent ? "HIGH" : "NORMAL",
+      sosUrgency,
+      reportedUrgency: sosUrgency === "CRITICAL" ? "CRITICAL" : sosUrgency === "MEDIUM" ? "MODERATE" : "",
       targetUserId,
       userId: stringValue(request.userId || request.createdBy),
       createdBy: stringValue(request.createdBy),
@@ -83,6 +91,9 @@ exports.sendQueuedHealthMateNotification = onValueCreated(
       emergencyId: incidentId,
       callId: stringValue(request.callId),
       announcementId: stringValue(request.announcementId),
+      conversationId: stringValue(request.conversationId),
+      messageId: stringValue(request.messageId),
+      broadcastId: stringValue(request.broadcastId),
     };
 
     let successCount = 0;
@@ -162,6 +173,12 @@ async function readUserTokens(uid) {
   return Array.from(byToken.values());
 }
 
+function normalizeSosUrgency(value) {
+  const normalized = stringValue(value).toUpperCase();
+  if (normalized === "CRITICAL") return "CRITICAL";
+  if (normalized === "MEDIUM" || normalized === "MODERATE") return "MEDIUM";
+  return "";
+}
 function isUrgent(type, priority) {
   const normalizedType = stringValue(type).toLowerCase();
   const normalizedPriority = stringValue(priority).toUpperCase();

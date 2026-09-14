@@ -17,8 +17,7 @@ function normalized(value: unknown) {
 }
 
 export function listenRespondentApplications(
-  callback: (items: RespondentApplication[]) => void,
-) {
+  callback: (items: RespondentApplication[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, "responderApplications"), (snapshot) => {
     const raw = snapshot.val() as Record<string, Omit<RespondentApplication, "id">> | null;
     const items = raw
@@ -31,7 +30,7 @@ export function listenRespondentApplications(
       : [];
     items.sort((first, second) => (second.updatedAt || second.submittedAt || 0) - (first.updatedAt || first.submittedAt || 0));
     callback(items);
-  });
+  }, onError);
 }
 
 export async function loadRespondentApplicationDocuments(

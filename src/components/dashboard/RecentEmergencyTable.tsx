@@ -1,5 +1,5 @@
 import { ArrowForwardRounded, LocationOnOutlined } from "@mui/icons-material";
-import { Box, Button, Chip, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { Emergency } from "../../types";
 import EmergencyAvatar from "../emergency/EmergencyAvatar";

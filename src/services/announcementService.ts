@@ -24,7 +24,7 @@ function optionalText(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
-export function listenAnnouncements(callback: (data: Announcement[]) => void) {
+export function listenAnnouncements(callback: (data: Announcement[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, ANNOUNCEMENTS_PATH), (snapshot) => {
     const raw = snapshot.val() as Record<string, Partial<Announcement>> | null;
     const announcements: Announcement[] = raw
@@ -46,7 +46,7 @@ export function listenAnnouncements(callback: (data: Announcement[]) => void) {
           .sort((a, b) => b.createdAt - a.createdAt)
       : [];
     callback(announcements);
-  });
+  }, onError);
 }
 
 export interface CreateAnnouncementInput {

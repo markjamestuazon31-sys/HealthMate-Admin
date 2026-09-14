@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Emergencies from "./pages/Emergencies";
 import EmergencyDirectory from "./pages/EmergencyDirectory";
 import LiveMap from "./pages/LiveMap";
+import Messages from "./pages/Messages";
 import Login from "./pages/Login";
 import Reports from "./pages/Reports";
 import RescueReports from "./pages/RescueReports";
@@ -47,6 +48,7 @@ export default function App() {
     <Route path="/responders" element={<SecuredPage><Responders /></SecuredPage>} />
     <Route path="/directory" element={<SecuredPage><EmergencyDirectory /></SecuredPage>} />
     <Route path="/rescue-reports" element={<SecuredPage><RescueReports /></SecuredPage>} />
+    <Route path="/messages" element={<SecuredPage><Messages /></SecuredPage>} />
     <Route path="/announcements" element={<SecuredPage><Announcements /></SecuredPage>} />
     <Route path="/reports" element={<SecuredPage><Reports /></SecuredPage>} />
     <Route path="/audit" element={<SecuredPage><AuditLogs /></SecuredPage>} />

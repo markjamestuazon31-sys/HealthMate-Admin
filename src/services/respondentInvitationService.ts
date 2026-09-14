@@ -10,16 +10,16 @@ function requireAdmin() {
   return actor;
 }
 
-export function listenRespondentInvitations(callback: (items: RespondentInvitation[]) => void) {
+export function listenRespondentInvitations(callback: (items: RespondentInvitation[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, "respondentInvitations"), (snapshot) => {
     const raw = snapshot.val() as Record<string, Omit<RespondentInvitation, "id">> | null;
     const items = raw ? Object.entries(raw).map(([id, value]) => ({ id, ...value })) : [];
     items.sort((a, b) => b.updatedAt - a.updatedAt);
     callback(items);
-  });
+  }, onError);
 }
 
-export function listenResponders(callback: (items: Responder[]) => void) {
+export function listenResponders(callback: (items: Responder[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, "respondents"), (snapshot) => {
     const raw = snapshot.val() as Record<string, Partial<Responder> & { fullName?: string; phone?: string }> | null;
     const items: Responder[] = raw ? Object.entries(raw).map(([id, value]) => ({
@@ -42,7 +42,7 @@ export function listenResponders(callback: (items: Responder[]) => void) {
     })) : [];
     items.sort((a, b) => a.name.localeCompare(b.name));
     callback(items);
-  });
+  }, onError);
 }
 
 export interface CreateInvitationInput {

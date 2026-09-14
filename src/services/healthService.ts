@@ -30,7 +30,7 @@ export async function getHealthProfile(userId: string): Promise<HealthProfile | 
   return normalizeHealthProfile(userId, snapshot.val() as Record<string, unknown>);
 }
 
-export function listenHealthProfiles(callback: (profiles: Record<string, HealthProfile>) => void) {
+export function listenHealthProfiles(callback: (profiles: Record<string, HealthProfile>) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, MEDICAL_PROFILES_PATH), (snapshot) => {
     const raw = snapshot.val() as Record<string, Record<string, unknown>> | null;
     const profiles: Record<string, HealthProfile> = {};
@@ -40,5 +40,5 @@ export function listenHealthProfiles(callback: (profiles: Record<string, HealthP
       });
     }
     callback(profiles);
-  });
+  }, onError);
 }

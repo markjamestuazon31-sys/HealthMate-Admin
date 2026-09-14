@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { resolveAdminRole } from "../policies/accountPolicy";
 import { registerAdminDispatchPresence } from "../services/adminDispatchService";
+import { registerAdministrationChannel } from "../services/adminResponderMessagingService";
 import { listenAdminProfile } from "../services/adminProfileService";
 import type { AdminProfile, AdminRole } from "../types";
 
@@ -96,6 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setAdminProfile(verifiedProfile);
           setError(null);
           setLoading(false);
+
+          void registerAdministrationChannel(verifiedProfile.fullName || "HealthMate Administration")
+            .catch((communicationError) => {
+              console.error("Unable to register this administrator for responder messaging", communicationError);
+            });
 
           stopDispatchPresence();
           try {

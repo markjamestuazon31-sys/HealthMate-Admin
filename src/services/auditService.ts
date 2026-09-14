@@ -14,21 +14,22 @@ export async function createAuditLog(action: string, userId: string, details?: s
   });
 }
 
-export function listenAuditLogs(callback: (logs: AuditLog[]) => void) {
+export function listenAuditLogs(callback: (logs: AuditLog[]) => void, onError?: (error: Error) => void) {
   return onValue(ref(database, AUDIT_LOGS_PATH), (snapshot) => {
-    const raw = snapshot.val() as Record<string, Partial<AuditLog> & { user?: string }> | null;
+    const raw = snapshot.val() as Record<string, Partial<AuditLog> & { user?: string; actorName?: string; actorUid?: string; targetUserId?: string; entityType?: string; entityId?: string; message?: string; note?: string }> | null;
     const logs = raw
       ? Object.entries(raw)
           .map(([id, value]) => ({
             id,
             action: value.action ?? "Administrative action",
-            performedBy: value.performedBy ?? value.user,
-            userId: value.userId,
-            details: value.details,
+            performedBy: value.actorName || value.performedBy || value.actorUid || value.user,
+            userId: value.userId || value.targetUserId,
+            incidentId: value.incidentId || (value.entityType === "emergency" ? value.entityId : undefined),
+            details: value.details || [value.message, value.note].filter(Boolean).join(" • "),
             timestamp: Number(value.timestamp ?? value.createdAt) || 0,
           }))
           .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0))
       : [];
     callback(logs);
-  });
+  }, onError);
 }
