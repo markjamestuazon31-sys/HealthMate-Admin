@@ -228,7 +228,7 @@ export default function EmergencyDirectory() {
           ? `${result.migratedContacts} legacy Bunuanan hotline${
               result.migratedContacts === 1 ? "" : "s"
             } synchronized successfully.`
-          : "Bunuanan directory is already synchronized with the Respondent app.",
+          : "Bunuanan directory is already synchronized with the Responders app.",
       );
     } catch (caught: unknown) {
       setError(
@@ -283,7 +283,7 @@ export default function EmergencyDirectory() {
       <PageHeader
         eyebrow="Emergency response infrastructure"
         title="Emergency Directory"
-        description={`Manage the hotline directory used by HealthMate Respondents. Local records are fixed to ${BUNUANAN_BARANGAY_NAME}, ${BUNUANAN_CITY}, while general hotlines provide a citywide fallback.`}
+        description={`Manage the hotline directory used by HealthMate Responders. Local records are fixed to ${BUNUANAN_BARANGAY_NAME}, ${BUNUANAN_CITY}, while general hotlines provide a citywide fallback.`}
         action={
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
             <Button
@@ -344,7 +344,7 @@ export default function EmergencyDirectory() {
         />
         <MetricCard
           icon={<PhoneInTalkRounded />}
-          label="Respondent-visible"
+          label="Responders-visible"
           value={respondentVisible}
           helper="Active lines currently available to the Android directory"
         />
@@ -434,7 +434,7 @@ export default function EmergencyDirectory() {
                         {BUNUANAN_BARANGAY_NAME} responder directory
                       </Typography>
                       <Typography color="text.secondary" fontSize={12.5}>
-                        Canonical service area used by Resident, Respondent, SOS,
+                        Canonical service area used by Resident, Responders, SOS,
                         Heatmap, and Inhabitants Profiling.
                       </Typography>
                     </Box>
@@ -450,7 +450,7 @@ export default function EmergencyDirectory() {
                     }
                     label={
                       localActive > 0
-                        ? "RESPONDENT SYNC READY"
+                        ? "RESPONDERS SYNC READY"
                         : "NO ACTIVE LOCAL LINE"
                     }
                     color={localActive > 0 ? "success" : "warning"}
@@ -462,7 +462,7 @@ export default function EmergencyDirectory() {
 
               {localActive === 0 && (
                 <Alert severity="warning">
-                  Bunuanan has no active local hotline. Respondents can still use
+                  Bunuanan has no active local hotline. Responders can still use
                   active general hotlines, but at least one local contact is
                   recommended.
                 </Alert>
@@ -490,7 +490,7 @@ export default function EmergencyDirectory() {
                   </Button>
                 }
               >
-                General hotlines are shown to Respondents as fallback contacts in
+                General hotlines are shown to Responders as fallback contacts in
                 addition to active Bunuanan local lines.
               </Alert>
 

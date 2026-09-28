@@ -301,7 +301,7 @@ export default function Dashboard() {
               incidents, verify
               patient identity and
               live location, and
-              coordinate respondents
+              coordinate responders
               from one real-time
               operations workspace.
             </Typography>
@@ -455,7 +455,7 @@ export default function Dashboard() {
         />
 
         <StatCard
-          title="Available respondents"
+          title="Available responder"
           value={
             availableResponders
           }
@@ -660,7 +660,7 @@ export default function Dashboard() {
                 mb: 2.5,
               }}
             >
-              Current respondent
+              Current responders
               availability
             </Typography>
 

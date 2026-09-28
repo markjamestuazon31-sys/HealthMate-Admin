@@ -55,7 +55,7 @@ const menuSections = [
     items: [
       { title: "Residents", path: "/residents", icon: <PeopleAltOutlined /> },
       { title: "Inhabitants profiling", path: "/inhabitants", icon: <HomeWorkOutlined /> },
-      { title: "Respondent authorization", path: "/responders", icon: <SupportAgentOutlined /> },
+      { title: "Responders authorization", path: "/responders", icon: <SupportAgentOutlined /> },
       { title: "Emergency directory", path: "/directory", icon: <LocalHospitalOutlined /> },
     ],
   },

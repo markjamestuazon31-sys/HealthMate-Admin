@@ -869,7 +869,7 @@ export default function EmergencyDialog({
 
             {team.length === 0 ? (
               <Alert severity="info">
-                No respondent has accepted this
+                No responders has accepted this
                 incident yet.
               </Alert>
             ) : (

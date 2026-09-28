@@ -36,18 +36,18 @@ export default function Responders() {
       <PageHeader
         eyebrow="Verified emergency personnel"
         title="Responders operations"
-        description="Review mobile respondent applications, verify identity and training evidence, activate qualified personnel, and manage existing respondent accounts."
+        description="Review mobile responders applications, verify identity and training evidence, activate qualified personnel, and manage existing responders accounts."
       />
 
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
         <Chip icon={<AssignmentIndOutlined />} label={`${pendingCount} applications require review`} color={pendingCount ? "warning" : "success"} variant="outlined" />
-        <Chip icon={<GroupsOutlined />} label={`${responders.filter((item) => item.accountStatus === "active").length} active respondents`} color="success" variant="outlined" />
+        <Chip icon={<GroupsOutlined />} label={`${responders.filter((item) => item.accountStatus === "active").length} active responders`} color="success" variant="outlined" />
         <Chip icon={<HistoryOutlined />} label={`${invitations.length} legacy account records`} color="info" variant="outlined" />
       </Stack>
 
       <Tabs value={tab} onChange={(_, value) => setTab(value)} variant="scrollable" allowScrollButtonsMobile>
         <Tab label="Applications" />
-        <Tab label="Registered respondents" />
+        <Tab label="Registered responders" />
         <Tab label="Legacy account records" />
       </Tabs>
 

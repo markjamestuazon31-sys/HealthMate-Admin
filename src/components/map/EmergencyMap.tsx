@@ -1421,7 +1421,7 @@ export default function EmergencyMap({
               fontSize={12}
             >
               Supporting
-              respondent
+              responders
             </Typography>
           </Stack>
         </Stack>
