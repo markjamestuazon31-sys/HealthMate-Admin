@@ -1,289 +1,306 @@
 /* Inhabitant profile dialog
-   Palette: ink #0f2a43 · teal #0f766e · wash #f5f8fb · line #e2e8f0 · muted #64748b */
+   All classes use the "ipd-" prefix so they can't clash with other styles in the app.
+   Palette: ink #102a43 · red #dc2626 · deep red #b91c1c · red tint #fee2e2 · wash #f8fbff · line #e5edf7 */
 
-.ip-dialog {
-  --ip-ink: #0f2a43;
-  --ip-teal: #0f766e;
-  --ip-teal-soft: #e6f4f1;
-  --ip-wash: #f5f8fb;
-  --ip-line: #e2e8f0;
-  --ip-muted: #64748b;
+.ipd-dialog {
+  --ipd-ink: #102a43;
+  --ipd-red: #dc2626;
+  --ipd-red-deep: #b91c1c;
+  --ipd-red-dark: #991b1b;
+  --ipd-red-soft: #fee2e2;
+  --ipd-red-line: #fecaca;
+  --ipd-wash: #f8fbff;
+  --ipd-line: #e5edf7;
+  --ipd-muted: #64748b;
 }
 
-.ip-dialog .MuiDialog-paper {
+.ipd-dialog .MuiDialog-paper {
   border-radius: 20px;
   max-height: 92vh;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(15, 42, 67, 0.28);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
 }
 
 /* ---------- header ---------- */
 
-.ip-dialog .ip-header {
+.ipd-dialog .ipd-header {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding: 28px 72px 26px 32px;
-  background: var(--ip-ink);
-  background-image: radial-gradient(120% 140% at 100% 0%, rgba(15, 118, 110, 0.55), transparent 60%);
+  justify-content: flex-start;
+  gap: 18px;
+  padding: 26px 64px 24px 28px;
+  background: var(--ipd-red-deep);
+  background-image: radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 60%);
   color: #fff;
 }
 
-.ip-avatar {
+.ipd-avatar {
   flex: none;
-  width: 80px;
-  height: 80px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   letter-spacing: 0.02em;
-  color: var(--ip-ink);
+  color: var(--ipd-red);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.28);
 }
 
-.ip-header-main { min-width: 0; }
+.ipd-header-main {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
 
-.ip-name {
+.ipd-name {
   margin: 0 0 10px;
-  font-size: 26px;
-  line-height: 1.15;
-  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 800;
   letter-spacing: -0.01em;
+  color: #fff;
   overflow-wrap: anywhere;
 }
 
-.ip-badges {
+.ipd-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.ip-badge {
+.ipd-badge {
   padding: 3px 11px;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 600;
   line-height: 1.5;
   text-transform: capitalize;
-  color: #e6eef6;
-  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.ip-badge--active { color: #052e2b; background: #7ee2c8; }
-.ip-badge--muted  { color: #e6eef6; background: rgba(255, 255, 255, 0.2); }
-.ip-badge--senior { color: #422006; background: #fcd9a0; }
+.ipd-badge--active { color: #14532d; background: #bbf7d0; }
+.ipd-badge--senior { color: #78350f; background: #fde68a; }
 
-.ip-address {
+.ipd-address {
   display: flex;
   align-items: center;
   gap: 6px;
   margin: 12px 0 0;
   font-size: 14px;
-  color: #c7d6e4;
+  color: #ffe4e4;
 }
 
-.ip-dialog .ip-close {
+.ipd-dialog .ipd-close {
   position: absolute;
   top: 14px;
   right: 14px;
-  color: #dbe6f0;
+  color: #fff;
 }
-.ip-dialog .ip-close:hover { background: rgba(255, 255, 255, 0.14); }
+.ipd-dialog .ipd-close:hover { background: rgba(255, 255, 255, 0.18); }
 
 /* ---------- summary strip ---------- */
 
-.ip-summary {
+.ipd-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
   margin: 0;
   background: #fff;
-  border-bottom: 1px solid var(--ip-line);
+  border-bottom: 1px solid var(--ipd-line);
 }
 
-.ip-summary .ip-field {
-  padding: 14px 24px;
-  border-right: 1px solid var(--ip-line);
-  min-width: 0;
+.ipd-summary .ipd-field {
+  padding: 12px 16px;
+  border-right: 1px solid var(--ipd-line);
 }
-.ip-summary .ip-field:last-child { border-right: 0; }
-.ip-summary .ip-field:first-child { padding-left: 32px; }
-.ip-summary dd { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ipd-summary .ipd-field:first-child { padding-left: 28px; }
+.ipd-summary .ipd-field:last-child { border-right: 0; }
+.ipd-summary dd {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ---------- body ---------- */
 
-.ip-dialog .ip-content {
-  padding: 24px 32px 8px;
-  background: var(--ip-wash);
+.ipd-dialog .ipd-content {
+  padding: 18px 28px 6px;
+  background: var(--ipd-wash);
 }
 
-.ip-section {
-  margin-bottom: 20px;
-  padding: 20px 22px 8px;
+.ipd-section {
+  margin-bottom: 16px;
+  padding: 18px 20px 8px;
   background: #fff;
-  border: 1px solid var(--ip-line);
+  border: 1px solid var(--ipd-line);
   border-radius: 14px;
 }
 
-.ip-section-head {
+.ipd-section-head {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
-.ip-section-icon {
+.ipd-section-icon {
   flex: none;
   width: 38px;
   height: 38px;
   display: grid;
   place-items: center;
   border-radius: 10px;
-  color: var(--ip-teal);
-  background: var(--ip-teal-soft);
+  color: var(--ipd-red);
+  background: var(--ipd-red-soft);
 }
 
-.ip-section-head h3 {
+.ipd-section-head h3 {
   margin: 0;
   font-size: 16px;
-  font-weight: 700;
-  color: var(--ip-ink);
+  font-weight: 800;
+  color: var(--ipd-ink);
 }
-.ip-section-head p {
+.ipd-section-head p {
   margin: 2px 0 0;
   font-size: 13px;
-  color: var(--ip-muted);
+  color: var(--ipd-muted);
 }
 
 /* ---------- fields ---------- */
 
-.ip-grid {
+.ipd-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 28px;
+  align-items: start;
+  column-gap: 24px;
   margin: 0;
 }
 
-.ip-field {
+.ipd-field {
   margin: 0;
-  padding: 12px 0;
+  padding: 10px 0;
   min-width: 0;
+  text-align: left;
 }
-.ip-grid .ip-field { border-top: 1px solid var(--ip-line); }
-.ip-field--wide { grid-column: 1 / -1; }
+.ipd-grid .ipd-field { border-top: 1px solid var(--ipd-line); }
+.ipd-field--wide { grid-column: 1 / -1; }
 
-.ip-field dt {
-  margin: 0 0 3px;
+.ipd-field dt {
+  margin: 0 0 2px;
   font-size: 12.5px;
-  font-weight: 500;
-  color: var(--ip-muted);
+  font-weight: 700;
+  color: var(--ipd-muted);
 }
 
-.ip-field dd {
+.ipd-field dd {
   margin: 0;
   font-size: 14.5px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.45;
-  color: var(--ip-ink);
+  color: var(--ipd-ink);
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
 
-.ip-field dd.ip-empty {
+.ipd-field dd.ipd-field-empty {
   font-weight: 400;
   color: #94a3b8;
 }
 
 /* ---------- social flags ---------- */
 
-.ip-flags {
+.ipd-flags {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   margin: 0 0 8px;
   padding: 0;
   list-style: none;
 }
 
-.ip-flag {
+.ipd-flag {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 12px;
-  border: 1px solid var(--ip-line);
+  padding: 8px 11px;
+  border: 1px solid var(--ipd-line);
   border-radius: 10px;
   font-size: 13px;
-  color: var(--ip-muted);
-  background: var(--ip-wash);
+  color: var(--ipd-muted);
+  background: var(--ipd-wash);
 }
-.ip-flag-label { flex: 1; min-width: 0; }
-.ip-flag-value { font-weight: 700; white-space: nowrap; }
+.ipd-flag-label { flex: 1; min-width: 0; }
+.ipd-flag-value { font-weight: 700; white-space: nowrap; }
 
-.ip-flag--yes {
-  color: var(--ip-ink);
-  border-color: #a6dccf;
-  background: var(--ip-teal-soft);
+.ipd-flag--yes {
+  color: var(--ipd-ink);
+  border-color: var(--ipd-red-line);
+  background: #fff5f5;
 }
-.ip-flag--yes svg { color: var(--ip-teal); }
-.ip-flag--yes .ip-flag-value { color: var(--ip-teal); }
-.ip-flag--unknown .ip-flag-value { font-weight: 400; color: #94a3b8; }
+.ipd-flag--yes svg,
+.ipd-flag--yes .ipd-flag-value { color: var(--ipd-red); }
+.ipd-flag--unknown .ipd-flag-value { font-weight: 400; color: #94a3b8; }
 
 /* ---------- footer ---------- */
 
-.ip-dialog .ip-footer {
-  padding: 14px 32px;
+.ipd-dialog .ipd-footer {
+  padding: 14px 28px;
   gap: 8px;
   background: #fff;
-  border-top: 1px solid var(--ip-line);
+  border-top: 1px solid var(--ipd-line);
 }
 
-.ip-dialog .ip-btn-ghost {
-  color: var(--ip-muted);
-  font-weight: 600;
-  text-transform: none;
-  border-radius: 10px;
-  padding: 8px 18px;
-}
-
-.ip-dialog .ip-btn-primary {
-  background: var(--ip-teal);
-  color: #fff;
+.ipd-dialog .ipd-btn-ghost {
+  color: var(--ipd-muted);
   font-weight: 700;
   text-transform: none;
-  border-radius: 10px;
-  padding: 8px 22px;
+  border-radius: 12px;
+  padding: 8px 18px;
 }
-.ip-dialog .ip-btn-primary:hover { background: #0b5e57; }
+.ipd-dialog .ipd-btn-ghost:hover { background: #f1f5f9; }
 
-.ip-dialog .ip-btn-ghost:focus-visible,
-.ip-dialog .ip-btn-primary:focus-visible,
-.ip-dialog .ip-close:focus-visible {
-  outline: 2px solid #7ee2c8;
+.ipd-dialog .ipd-btn-primary {
+  background: var(--ipd-red);
+  color: #fff;
+  font-weight: 800;
+  text-transform: none;
+  border-radius: 12px;
+  padding: 9px 22px;
+}
+.ipd-dialog .ipd-btn-primary:hover { background: var(--ipd-red-deep); }
+
+.ipd-dialog .ipd-btn-ghost:focus-visible,
+.ipd-dialog .ipd-btn-primary:focus-visible,
+.ipd-dialog .ipd-close:focus-visible {
+  outline: 2px solid var(--ipd-red);
   outline-offset: 2px;
 }
+.ipd-dialog .ipd-close:focus-visible { outline-color: #fff; }
 
 /* ---------- responsive ---------- */
 
 @media (max-width: 900px) {
-  .ip-grid, .ip-flags { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ip-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ip-summary .ip-field:nth-child(2) { border-right: 0; }
-  .ip-summary .ip-field:nth-child(n + 3) { border-top: 1px solid var(--ip-line); }
-  .ip-summary .ip-field:nth-child(3) { padding-left: 32px; }
+  .ipd-grid, .ipd-flags { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ipd-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ipd-summary .ipd-field:nth-child(2) { border-right: 0; }
+  .ipd-summary .ipd-field:nth-child(n + 3) { border-top: 1px solid var(--ipd-line); }
+  .ipd-summary .ipd-field:nth-child(3) { padding-left: 28px; }
 }
 
 @media (max-width: 600px) {
-  .ip-dialog .ip-header { padding: 22px 56px 20px 20px; gap: 14px; align-items: flex-start; }
-  .ip-avatar { width: 56px; height: 56px; font-size: 20px; }
-  .ip-name { font-size: 20px; }
-  .ip-dialog .ip-content { padding: 16px 14px 4px; }
-  .ip-section { padding: 16px 16px 4px; }
-  .ip-grid, .ip-flags { grid-template-columns: 1fr; }
-  .ip-summary .ip-field,
-  .ip-summary .ip-field:first-child,
-  .ip-summary .ip-field:nth-child(3) { padding: 12px 16px; }
-  .ip-dialog .ip-footer { padding: 12px 16px; }
+  .ipd-dialog .ipd-header { padding: 20px 52px 18px 18px; gap: 14px; align-items: flex-start; }
+  .ipd-avatar { width: 54px; height: 54px; font-size: 19px; }
+  .ipd-name { font-size: 19px; }
+  .ipd-dialog .ipd-content { padding: 14px 12px 4px; }
+  .ipd-section { padding: 14px 14px 4px; }
+  .ipd-grid, .ipd-flags { grid-template-columns: 1fr; }
+  .ipd-summary .ipd-field,
+  .ipd-summary .ipd-field:first-child,
+  .ipd-summary .ipd-field:nth-child(3) { padding: 10px 16px; }
+  .ipd-dialog .ipd-footer { padding: 12px 16px; }
 }

@@ -9,14 +9,16 @@ import type { ReactNode } from "react";
 import type { Household } from "../../types";
 import { ageOn, personLocation, SOCIAL_FIELDS, type RegistryInhabitant } from "../../services/inhabitantModel";
 import { money } from "./HouseholdProfileDialog";
-import "./InhabitantProfileDialog.css"; // <- this import is what makes the styles load
+import "./InhabitantProfileDialog.css"; // required: this import loads the styles
 
-/* ---------- small helpers ---------- */
+/* ---------- helpers ---------- */
 
 const initials = (name?: string) => {
   const parts = (name || "").trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return "?";
-  return ((parts[0][0] || "") + (parts.length > 1 ? parts[parts.length - 1][0] : parts[0][1] || "")).toUpperCase();
+  const first = parts[0][0] || "";
+  const second = parts.length > 1 ? parts[parts.length - 1][0] : parts[0][1] || "";
+  return (first + second).toUpperCase();
 };
 
 const isEmpty = (v: unknown) => v === undefined || v === null || String(v).trim() === "";
@@ -24,18 +26,18 @@ const isEmpty = (v: unknown) => v === undefined || v === null || String(v).trim(
 function Field({ label, value, wide }: { label: string; value?: ReactNode; wide?: boolean }) {
   const empty = isEmpty(value);
   return (
-    <div className={`ip-field${wide ? " ip-field--wide" : ""}`}>
+    <div className={`ipd-field${wide ? " ipd-field--wide" : ""}`}>
       <dt>{label}</dt>
-      <dd className={empty ? "ip-empty" : undefined}>{empty ? "Not recorded" : value}</dd>
+      <dd className={empty ? "ipd-field-empty" : undefined}>{empty ? "Not recorded" : value}</dd>
     </div>
   );
 }
 
 function Section({ icon, title, hint, children }: { icon: ReactNode; title: string; hint: string; children: ReactNode }) {
   return (
-    <section className="ip-section">
-      <header className="ip-section-head">
-        <span className="ip-section-icon">{icon}</span>
+    <section className="ipd-section">
+      <header className="ipd-section-head">
+        <span className="ipd-section-icon">{icon}</span>
         <div>
           <h3>{title}</h3>
           <p>{hint}</p>
@@ -49,10 +51,10 @@ function Section({ icon, title, hint, children }: { icon: ReactNode; title: stri
 function Flag({ label, value }: { label: string; value: boolean | null | undefined }) {
   const state = value === true ? "yes" : value === false ? "no" : "unknown";
   return (
-    <li className={`ip-flag ip-flag--${state}`}>
+    <li className={`ipd-flag ipd-flag--${state}`}>
       {state === "yes" ? <CheckCircleRounded fontSize="small" /> : <RemoveCircleOutlineRounded fontSize="small" />}
-      <span className="ip-flag-label">{label}</span>
-      <span className="ip-flag-value">{state === "yes" ? "Yes" : state === "no" ? "No" : "Not recorded"}</span>
+      <span className="ipd-flag-label">{label}</span>
+      <span className="ipd-flag-value">{state === "yes" ? "Yes" : state === "no" ? "No" : "Not recorded"}</span>
     </li>
   );
 }
@@ -67,44 +69,51 @@ export default function InhabitantProfileDialog({ person, household, onClose, on
   const location = personLocation(person, household);
   const age = ageOn(person.birthDate);
   const ageText = age === null ? "Age not recorded" : `${age} years old`;
-  const status = (person.status || "unknown").toString();
+  const status = String(person.status || "unknown");
   const isSenior = age !== null && age >= 60;
 
   return (
-    <Dialog className="ip-dialog" open onClose={onClose} fullWidth maxWidth="md" fullScreen={fullScreen}
-            aria-labelledby="ip-profile-title">
-      <DialogTitle component="div" className="ip-header">
-        <div className="ip-avatar" aria-hidden>{initials(person.fullName)}</div>
+    <Dialog
+      className="ipd-dialog"
+      open
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      fullScreen={fullScreen}
+      aria-labelledby="ipd-profile-title"
+    >
+      <DialogTitle component="div" className="ipd-header">
+        <div className="ipd-avatar" aria-hidden>{initials(person.fullName)}</div>
 
-        <div className="ip-header-main">
-          <h2 id="ip-profile-title" className="ip-name">{person.fullName}</h2>
-          <div className="ip-badges">
-            <span className={`ip-badge ip-badge--${status.toLowerCase() === "active" ? "active" : "muted"}`}>{status}</span>
-            <span className="ip-badge">{ageText}</span>
-            {person.sex && <span className="ip-badge">{person.sex}</span>}
-            {isSenior && <span className="ip-badge ip-badge--senior">Senior citizen</span>}
+        <div className="ipd-header-main">
+          <h2 id="ipd-profile-title" className="ipd-name">{person.fullName}</h2>
+          <div className="ipd-badges">
+            <span className={`ipd-badge ${status.toLowerCase() === "active" ? "ipd-badge--active" : ""}`}>{status}</span>
+            <span className="ipd-badge">{ageText}</span>
+            {person.sex && <span className="ipd-badge">{person.sex}</span>}
+            {isSenior && <span className="ipd-badge ipd-badge--senior">Senior citizen</span>}
           </div>
-          <p className="ip-address">
+          <p className="ipd-address">
             <LocationOnOutlined fontSize="small" />
             {location.address || "Address not recorded"}
           </p>
         </div>
 
-        <IconButton className="ip-close" onClick={onClose} aria-label="Close profile">
+        <IconButton className="ipd-close" onClick={onClose} aria-label="Close profile">
           <CloseRounded />
         </IconButton>
       </DialogTitle>
 
-      <dl className="ip-summary">
+      <dl className="ipd-summary">
         <Field label="Household" value={household?.householdName} />
         <Field label="Birthday" value={person.birthDate} />
         <Field label="Contact" value={person.phone} />
         <Field label="Occupation" value={person.occupation} />
       </dl>
 
-      <DialogContent className="ip-content">
+      <DialogContent className="ipd-content">
         <Section icon={<PersonOutlined />} title="Personal information" hint="Identity and resident details">
-          <dl className="ip-grid">
+          <dl className="ipd-grid">
             <Field label="Civil status" value={person.civilStatus} />
             <Field label="Citizenship" value={person.citizenship} />
             <Field label="Nationality / details" value={person.nationality} />
@@ -116,7 +125,7 @@ export default function InhabitantProfileDialog({ person, household, onClose, on
         </Section>
 
         <Section icon={<HomeOutlined />} title="Household information" hint="Family and household relationship">
-          <dl className="ip-grid">
+          <dl className="ipd-grid">
             <Field label="Household" value={household?.householdName} />
             <Field label="Family number" value={person.familyNumber} />
             <Field label="Relationship to head" value={person.relationshipToHead} />
@@ -125,14 +134,14 @@ export default function InhabitantProfileDialog({ person, household, onClose, on
         </Section>
 
         <Section icon={<HealthAndSafetyOutlined />} title="Health and social data" hint="Social classification and medical notes">
-          <ul className="ip-flags">
+          <ul className="ipd-flags">
             <Flag label="Senior citizen (60+)" value={age === null ? null : isSenior} />
             {SOCIAL_FIELDS.map(([key, label]) => (
               <Flag key={key} label={label} value={person[key] as boolean | null | undefined} />
             ))}
           </ul>
 
-          <dl className="ip-grid ip-grid--notes">
+          <dl className="ipd-grid">
             <Field label="Health conditions" value={person.medicalConditions} wide />
             <Field label="Medical history" value={person.medicalHistory} wide />
             <Field label="Past treatments" value={person.pastTreatments} wide />
@@ -146,9 +155,15 @@ export default function InhabitantProfileDialog({ person, household, onClose, on
         </Section>
       </DialogContent>
 
-      <DialogActions className="ip-footer">
-        <Button className="ip-btn-ghost" onClick={onClose}>Close</Button>
-        <Button className="ip-btn-primary" variant="contained" disableElevation startIcon={<EditOutlined />} onClick={onEdit}>
+      <DialogActions className="ipd-footer">
+        <Button className="ipd-btn-ghost" onClick={onClose}>Close</Button>
+        <Button
+          className="ipd-btn-primary"
+          variant="contained"
+          disableElevation
+          startIcon={<EditOutlined />}
+          onClick={onEdit}
+        >
           Edit profile
         </Button>
       </DialogActions>
