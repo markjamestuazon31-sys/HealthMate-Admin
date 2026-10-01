@@ -1,0 +1,110 @@
+.ip-premium-dialog .MuiPaper-root{
+  border-radius:28px;
+  max-height:90vh;
+  overflow:hidden;
+  box-shadow:0 30px 80px rgba(15,23,42,.35);
+}
+
+.ip-profile-header{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:28px 34px!important;
+  background:linear-gradient(135deg,#ffffff,#f1f7ff);
+}
+
+.ip-profile-avatar{
+  width:76px!important;
+  height:76px!important;
+  background:#fee2e2!important;
+  color:#dc2626!important;
+  font-size:24px!important;
+  font-weight:900!important;
+}
+
+.ip-profile-name{
+  font-size:23px!important;
+  font-weight:900!important;
+  color:#102a43;
+}
+
+.ip-profile-location{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  color:#64748b;
+  margin-top:8px!important;
+}
+
+.ip-content{
+  padding:24px 34px!important;
+  overflow:auto;
+}
+
+.ip-section{
+  border:1px solid #dbe7f5;
+  background:#f8fbff;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.ip-section-header{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  color:#12345b;
+  margin-bottom:16px;
+}
+
+.ip-section-header svg{
+  color:#2563eb;
+}
+
+.ip-section-header b{
+  display:block;
+  font-size:16px;
+}
+
+.ip-section-header small{
+  color:#64748b;
+}
+
+.ip-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px 30px;
+}
+
+.ip-grid div{
+  padding-bottom:10px;
+  border-bottom:1px solid #e5edf7;
+}
+
+.ip-grid dt{
+  font-size:12px;
+  font-weight:800;
+  color:#64748b;
+}
+
+.ip-grid dd{
+  margin-top:5px;
+  font-weight:700;
+  color:#102a43;
+}
+
+.ip-footer{
+  padding:18px 34px!important;
+  border-top:1px solid #e5edf7;
+}
+
+.ip-footer .MuiButton-contained{
+  background:#dc2626;
+  border-radius:12px;
+  font-weight:800;
+  padding:10px 22px;
+}
+
+@media(max-width:700px){
+ .ip-grid{grid-template-columns:1fr;}
+}
