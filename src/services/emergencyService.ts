@@ -11,6 +11,7 @@ import {
 
 import { auth, database } from "../firebase/config";
 import {
+  allowedNextStatuses,
   canTransitionEmergencyStatus,
 } from "../policies/emergencyPolicy";
 import type {
@@ -314,4 +315,181 @@ export async function updateEmergencyStatus(
     [`incidentAnalytics/${id}/status`]: status,
     [`incidentAnalytics/${id}/updatedAt`]: now,
   });
+}
+
+export type ResolveCaseMode = "advance" | "close" | "force_cancel";
+
+export interface ResolveCaseOptions {
+  mode: ResolveCaseMode;
+  responseNotes?: string;
+  cancelReason?: string;
+}
+
+/**
+ * Safe admin resolution when a respondent has been (or still is) involved.
+ *
+ * - advance: step one status along the allowed path toward closure
+ *   (REPORT_SUBMITTED → ADMIN_REVIEWED → CLOSED preferred).
+ * - close: only allowed from ADMIN_REVIEWED (or when no active responders and
+ *   arrival already verified / status ≥ ON_SCENE).
+ * - force_cancel: cancel with a required reason (false alarm, duplicate, etc.).
+ */
+export async function resolveCaseWithRespondent(
+  emergency: Emergency,
+  options: ResolveCaseOptions,
+): Promise<{ nextStatus: EmergencyStatus; message: string }> {
+  const actor = auth.currentUser;
+  if (!actor) {
+    throw new Error("Your administrator session has expired.");
+  }
+
+  if (["CLOSED", "CANCELLED"].includes(emergency.status)) {
+    throw new Error("This incident is already closed or cancelled.");
+  }
+
+  const now = Date.now();
+  const notes = (options.responseNotes ?? emergency.responseNotes ?? "").trim();
+  const activeResponders = Object.values(emergency.responders ?? {}).filter(
+    (item) => item.active,
+  );
+  const arrivalReady =
+    emergency.arrivalVerified === true ||
+    ["ON_SCENE", "AGENCY_CONTACTED", "RESCUE_IN_PROGRESS", "REPORT_SUBMITTED", "ADMIN_REVIEWED"].includes(
+      emergency.status,
+    );
+
+  // --- Force cancel ---
+  if (options.mode === "force_cancel") {
+    const reason = (options.cancelReason ?? "").trim();
+    if (!reason) {
+      throw new Error("A cancellation reason is required.");
+    }
+    if (reason.length > 1000) {
+      throw new Error("Cancellation reason must be 1,000 characters or fewer.");
+    }
+    if (!canTransitionEmergencyStatus(emergency.status, "CANCELLED")) {
+      throw new Error(`Cannot cancel from status ${emergency.status}.`);
+    }
+
+    const auditId = push(ref(database, "auditLogs")).key;
+    const updates: Record<string, unknown> = {
+      [`emergencies/${emergency.id}/status`]: "CANCELLED",
+      [`emergencies/${emergency.id}/cancelledAt`]: now,
+      [`emergencies/${emergency.id}/cancellationReason`]: reason,
+      [`emergencies/${emergency.id}/cancelledBy`]: actor.uid,
+      [`emergencies/${emergency.id}/responseNotes`]: notes || reason,
+      [`emergencies/${emergency.id}/updatedAt`]: now,
+      [`incidentAnalytics/${emergency.id}/status`]: "CANCELLED",
+      [`incidentAnalytics/${emergency.id}/resolvedAt`]: now,
+      [`incidentAnalytics/${emergency.id}/updatedAt`]: now,
+    };
+
+    if (auditId) {
+      updates[`auditLogs/${auditId}`] = {
+        action: "EMERGENCY_INCIDENT_CANCELLED",
+        performedBy: actor.uid,
+        actorRole: "administrator",
+        userId: emergency.patientUid,
+        incidentId: emergency.id,
+        details: reason,
+        timestamp: now,
+      };
+    }
+
+    await update(ref(database), updates);
+    return {
+      nextStatus: "CANCELLED",
+      message: "Incident cancelled. The cancellation reason was recorded in the audit trail.",
+    };
+  }
+
+  // --- Determine next status ---
+  let target: EmergencyStatus;
+
+  if (options.mode === "close") {
+    if (emergency.status === "ADMIN_REVIEWED") {
+      target = "CLOSED";
+    } else if (
+      arrivalReady &&
+      activeResponders.length === 0 &&
+      canTransitionEmergencyStatus(emergency.status, "CLOSED")
+    ) {
+      // No active respondent left and scene was reached — allow close
+      target = "CLOSED";
+    } else if (emergency.status === "REPORT_SUBMITTED") {
+      throw new Error(
+        "Review and approve the rescue report first (moves to ADMIN_REVIEWED), then close.",
+      );
+    } else if (!arrivalReady && activeResponders.length > 0) {
+      throw new Error(
+        "A respondent is still active. Wait for arrival verification or the rescue report before closing.",
+      );
+    } else {
+      throw new Error(
+        `Cannot close directly from ${emergency.status}. Advance the case or use cancel if appropriate.`,
+      );
+    }
+  } else {
+    // mode === "advance"
+    const preferred: Partial<Record<EmergencyStatus, EmergencyStatus>> = {
+      REPORT_SUBMITTED: "ADMIN_REVIEWED",
+      ADMIN_REVIEWED: "CLOSED",
+      ON_SCENE: "REPORT_SUBMITTED",
+      AGENCY_CONTACTED: "REPORT_SUBMITTED",
+      RESCUE_IN_PROGRESS: "REPORT_SUBMITTED",
+    };
+
+    const next = preferred[emergency.status];
+    if (next && canTransitionEmergencyStatus(emergency.status, next)) {
+      target = next;
+    } else {
+      const allowed = allowedNextStatuses(emergency.status);
+      const nonCancel = allowed.filter((s) => s !== "CANCELLED");
+      if (nonCancel.length === 0) {
+        throw new Error(
+          `No forward status available from ${emergency.status}. Use cancel if the case must end.`,
+        );
+      }
+      // Prefer the furthest meaningful step
+      target =
+        nonCancel.includes("ADMIN_REVIEWED")
+          ? "ADMIN_REVIEWED"
+          : nonCancel.includes("REPORT_SUBMITTED")
+            ? "REPORT_SUBMITTED"
+            : nonCancel.includes("CLOSED")
+              ? "CLOSED"
+              : nonCancel[0];
+    }
+
+    if (
+      !arrivalReady &&
+      activeResponders.length > 0 &&
+      ["REPORT_SUBMITTED", "ADMIN_REVIEWED", "CLOSED"].includes(target)
+    ) {
+      throw new Error(
+        "A respondent is still active and arrival is not verified. Wait for the respondent flow before advancing to report/close.",
+      );
+    }
+  }
+
+  if (!canTransitionEmergencyStatus(emergency.status, target)) {
+    throw new Error(`Invalid transition from ${emergency.status} to ${target}.`);
+  }
+
+  await updateEmergencyResponse(emergency, {
+    status: target,
+    priority: emergency.priority,
+    responseNotes: notes,
+  });
+
+  const labels: Record<string, string> = {
+    REPORT_SUBMITTED: "Marked as report submitted. Review the rescue report next.",
+    ADMIN_REVIEWED: "Marked as admin reviewed. You can now close the case.",
+    CLOSED: "Case closed successfully.",
+  };
+
+  return {
+    nextStatus: target,
+    message: labels[target] ?? `Status updated to ${target.replace(/_/g, " ")}.`,
+  };
 }

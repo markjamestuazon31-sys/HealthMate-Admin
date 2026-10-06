@@ -47,6 +47,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import {
+  resolveCaseWithRespondent,
   saveEmergencyAdministrativeDetails,
 } from "../../services/emergencyService";
 import {
@@ -187,6 +188,8 @@ export default function EmergencyDialog({
 
   const [note, setNote] = useState("");
   const [urgencyReason, setUrgencyReason] = useState("");
+  const [cancelReason, setCancelReason] = useState("");
+  const [showCancelForm, setShowCancelForm] = useState(false);
   const [basePriority, setBasePriority] = useState<EmergencyPriority>("HIGH");
   const [priority, setPriority] =
     useState<EmergencyPriority>("HIGH");
@@ -203,6 +206,8 @@ export default function EmergencyDialog({
     setPriority(emergency.priority);
     setBasePriority(emergency.priority);
     setUrgencyReason("");
+    setCancelReason("");
+    setShowCancelForm(false);
     setError("");
     setSuccess("");
   }, [emergency?.id, open]);
@@ -247,6 +252,30 @@ export default function EmergencyDialog({
     String(emergency.alertState ?? "")
       .trim()
       .toUpperCase() === "SECURED";
+  const activeResponderCount = activeTeam.length;
+  const canAdvance =
+    !terminal &&
+    [
+      "ON_SCENE",
+      "AGENCY_CONTACTED",
+      "RESCUE_IN_PROGRESS",
+      "REPORT_SUBMITTED",
+      "ADMIN_REVIEWED",
+    ].includes(emergency.status);
+  const canCloseDirectly =
+    !terminal &&
+    (emergency.status === "ADMIN_REVIEWED" ||
+      (secured && activeResponderCount === 0));
+  const resolveBlockedReason =
+    !terminal &&
+    !canAdvance &&
+    !canCloseDirectly &&
+    activeResponderCount > 0 &&
+    !secured
+      ? "A respondent is still active. Wait for arrival verification (QR) or the rescue report before resolving."
+      : !terminal && !canAdvance && !canCloseDirectly
+        ? "Advance is available once the case reaches ON SCENE or later."
+        : "";
 
   async function acknowledgeAndNotify(): Promise<void> {
     if (currentEmergency.priority !== basePriority) {
@@ -324,6 +353,81 @@ export default function EmergencyDialog({
         caught instanceof Error
           ? caught.message
           : "Unable to save the administrative note.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleAdvanceCase(): Promise<void> {
+    if (terminal) return;
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const result = await resolveCaseWithRespondent(currentEmergency, {
+        mode: "advance",
+        responseNotes: note,
+      });
+      setSuccess(result.message);
+      setShowCancelForm(false);
+    } catch (caught: unknown) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Unable to advance this case.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleCloseCase(): Promise<void> {
+    if (terminal) return;
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const result = await resolveCaseWithRespondent(currentEmergency, {
+        mode: "close",
+        responseNotes: note,
+      });
+      setSuccess(result.message);
+      setShowCancelForm(false);
+    } catch (caught: unknown) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Unable to close this case.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleCancelCase(): Promise<void> {
+    if (terminal) return;
+    if (!cancelReason.trim()) {
+      setError("Enter a cancellation reason before cancelling.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const result = await resolveCaseWithRespondent(currentEmergency, {
+        mode: "force_cancel",
+        responseNotes: note,
+        cancelReason,
+      });
+      setSuccess(result.message);
+      setShowCancelForm(false);
+      setCancelReason("");
+    } catch (caught: unknown) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Unable to cancel this case.",
       );
     } finally {
       setSaving(false);
@@ -1038,6 +1142,112 @@ export default function EmergencyDialog({
                 }
                 helperText="Internal operational note. It is stored in the incident record and audit trail; it is not used as the patient notification text."
               />
+
+              {!terminal && (
+                <Box
+                  sx={{
+                    p: 2,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                  }}
+                >
+                  <Typography fontWeight={750} sx={{ mb: 1 }}>
+                    Resolve case
+                  </Typography>
+                  <Typography
+                    color="text.secondary"
+                    fontSize={14}
+                    sx={{ mb: 1.5 }}
+                  >
+                    Preferred path: respondent arrival → rescue report → admin
+                    review → close. Use cancel only for false alarms or
+                    duplicates.
+                  </Typography>
+
+                  {resolveBlockedReason && (
+                    <Alert severity="warning" sx={{ mb: 1.5 }}>
+                      {resolveBlockedReason}
+                    </Alert>
+                  )}
+
+                  {showCancelForm && (
+                    <TextField
+                      fullWidth
+                      required
+                      multiline
+                      minRows={2}
+                      label="Cancellation reason"
+                      value={cancelReason}
+                      disabled={saving}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setCancelReason(event.target.value)
+                      }
+                      inputProps={{ maxLength: 1000 }}
+                      helperText="Required. Recorded in the audit trail."
+                      sx={{ mb: 1.5 }}
+                    />
+                  )}
+
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    useFlexGap
+                    flexWrap="wrap"
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={saving || !canAdvance}
+                      onClick={handleAdvanceCase}
+                    >
+                      {emergency.status === "REPORT_SUBMITTED"
+                        ? "Mark admin reviewed"
+                        : emergency.status === "ADMIN_REVIEWED"
+                          ? "Advance (close)"
+                          : "Advance status"}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={saving || !canCloseDirectly}
+                      onClick={handleCloseCase}
+                    >
+                      Close case
+                    </Button>
+                    {!showCancelForm ? (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        disabled={saving}
+                        onClick={() => setShowCancelForm(true)}
+                      >
+                        Cancel incident…
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          disabled={saving || !cancelReason.trim()}
+                          onClick={handleCancelCase}
+                        >
+                          Confirm cancel
+                        </Button>
+                        <Button
+                          disabled={saving}
+                          onClick={() => {
+                            setShowCancelForm(false);
+                            setCancelReason("");
+                          }}
+                        >
+                          Keep open
+                        </Button>
+                      </>
+                    )}
+                  </Stack>
+                </Box>
+              )}
             </Stack>
           </Box>
         </Stack>
@@ -1080,6 +1290,21 @@ export default function EmergencyDialog({
             disabled={saving}
           >
             Save changes
+          </Button>
+        )}
+
+        {!terminal && canCloseDirectly && (
+          <Button
+            variant="contained"
+            color="success"
+            disabled={saving}
+            onClick={handleCloseCase}
+          >
+            {saving ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Close case"
+            )}
           </Button>
         )}
 
