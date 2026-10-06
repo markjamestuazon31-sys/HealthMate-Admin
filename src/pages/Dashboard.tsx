@@ -28,6 +28,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
+import BackupRequestPanel from "../components/dashboard/BackupRequestPanel";
 import EmergencyChart from "../components/dashboard/EmergencyChart";
 import RecentEmergencyTable from "../components/dashboard/RecentEmergencyTable";
 import StatCard from "../components/dashboard/StatCard";
@@ -40,6 +41,10 @@ import {
 } from "../components/emergency/EmergencyStatusChip";
 
 import { useAuth } from "../context/AuthContext";
+
+import {
+  deriveBackupRequests,
+} from "../services/backupRequestService";
 
 import {
   listenEmergencies,
@@ -166,6 +171,11 @@ export default function Dashboard() {
         ).length,
       [responders],
     );
+
+  const backupRequests = useMemo(
+    () => deriveBackupRequests(emergencies),
+    [emergencies],
+  );
 
   const topIncident =
     active[0];
@@ -735,6 +745,12 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </Box>
+
+      {/* Active backup requests from responders */}
+      <BackupRequestPanel
+        requests={backupRequests}
+        responders={responders}
+      />
 
       {/* Recent emergency records */}
       <Box>

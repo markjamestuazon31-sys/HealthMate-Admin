@@ -173,6 +173,11 @@ function normalizeResponses(
         lastLocationUpdate: location?.updatedAt || toNumber(value.lastLocationUpdate) || undefined,
         notes: firstString(value.notes, value.responseNotes),
         backupRequested: Boolean(value.backupRequested),
+        backupRequestedAt: toNumber(value.backupRequestedAt) || undefined,
+        backupNeed: firstString(value.backupNeed, value.need),
+        backupSpecialty: firstString(value.backupSpecialty, value.specialty),
+        backupAdminNotifiedAt: toNumber(value.backupAdminNotifiedAt) || undefined,
+        backupFulfilledAt: toNumber(value.backupFulfilledAt) || undefined,
         active: value.active !== false && responseStatus !== "WITHDRAWN",
         location,
       }];
