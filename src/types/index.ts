@@ -378,8 +378,37 @@ export interface EmergencyResponderResponse {
   lastLocationUpdate?: number;
   notes?: string;
   backupRequested?: boolean;
+  backupRequestedAt?: number;
+  backupNeed?: string;
+  backupSpecialty?: string;
+  backupAdminNotifiedAt?: number;
+  backupFulfilledAt?: number;
   active: boolean;
   location?: EmergencyLocationPoint;
+}
+
+/** Derived admin view of an open backup request from a responder on an active SOS. */
+export type BackupRequestStatus = "OPEN" | "NOTIFIED" | "FULFILLED" | "CANCELLED";
+
+export interface BackupRequest {
+  id: string;
+  incidentId: string;
+  requesterUid: string;
+  requesterName?: string;
+  teamRole?: ResponseTeamRole;
+  patientName?: string;
+  patientUid?: string;
+  area?: string;
+  priority: EmergencyPriority;
+  incidentStatus: EmergencyStatus;
+  notes: string;
+  specialty?: string;
+  need?: string;
+  status: BackupRequestStatus;
+  requestedAt: number;
+  adminNotifiedAt?: number;
+  fulfilledAt?: number;
+  activeResponderCount: number;
 }
 
 export interface Emergency {
