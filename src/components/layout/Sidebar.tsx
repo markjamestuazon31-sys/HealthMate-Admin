@@ -28,9 +28,13 @@ import {
   Typography,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import healthMateLogo from "../../assets/healthmate-logo.png";
 import { useAuth } from "../../context/AuthContext";
+import { listenAdminResponderConversations } from "../../services/adminResponderMessagingService";
+import { listenRespondentApplications } from "../../services/respondentApplicationService";
+import type { AdminResponderConversation, RespondentApplication } from "../../types";
 import { profileImageSource } from "../../utils/imageData";
 
 export const drawerWidth = 288;
@@ -88,6 +92,30 @@ export default function Sidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const { user, adminProfile } = useAuth();
+
+  const [applications, setApplications] = useState<RespondentApplication[]>([]);
+  const [conversations, setConversations] = useState<AdminResponderConversation[]>([]);
+
+  useEffect(() => listenRespondentApplications(setApplications), []);
+  useEffect(() => listenAdminResponderConversations(setConversations), []);
+
+  const pendingRespondersCount = useMemo(
+    () =>
+      applications.filter((item) =>
+        ["pending_review", "under_verification", "additional_documents_required"].includes(item.status),
+      ).length,
+    [applications],
+  );
+
+  const unreadMessagesCount = useMemo(
+    () => conversations.reduce((sum, item) => sum + Math.max(0, item.unreadCount || 0), 0),
+    [conversations],
+  );
+
+  const badgeByPath: Record<string, number> = {
+    "/responders": pendingRespondersCount,
+    "/messages": unreadMessagesCount,
+  };
 
   const displayName =
     adminProfile?.fullName?.trim() || user?.displayName?.trim() || user?.email?.split("@")[0] || "Administrator";
@@ -271,21 +299,55 @@ export default function Sidebar({
                         noWrap: true,
                       }}
                     />
-                    {selected && (
-                      <Box
-                        aria-hidden
-                        sx={{
-                          width: 5,
-                          height: 5,
-                          ml: 0.5,
-                          mr: 0.25,
-                          flexShrink: 0,
-                          borderRadius: "50%",
-                          bgcolor: "#FFFFFF",
-                          boxShadow: `0 0 0 4px ${alpha("#FFFFFF", 0.12)}`,
-                        }}
-                      />
-                    )}
+                    {(() => {
+                      const count = badgeByPath[item.path] ?? 0;
+                      if (count > 0) {
+                        return (
+                          <Box
+                            component="span"
+                            aria-label={`${count} notifications`}
+                            sx={{
+                              ml: 0.75,
+                              mr: 0.35,
+                              flexShrink: 0,
+                              minWidth: 22,
+                              height: 22,
+                              px: 0.7,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              borderRadius: 999,
+                              bgcolor: "#FFFFFF",
+                              color: "#B42318",
+                              fontSize: 11,
+                              fontWeight: 800,
+                              lineHeight: 1,
+                              boxShadow: `0 2px 8px ${alpha("#5E2016", 0.35)}`,
+                            }}
+                          >
+                            {count > 99 ? "99+" : count}
+                          </Box>
+                        );
+                      }
+                      if (selected) {
+                        return (
+                          <Box
+                            aria-hidden
+                            sx={{
+                              width: 5,
+                              height: 5,
+                              ml: 0.5,
+                              mr: 0.25,
+                              flexShrink: 0,
+                              borderRadius: "50%",
+                              bgcolor: "#FFFFFF",
+                              boxShadow: `0 0 0 4px ${alpha("#FFFFFF", 0.12)}`,
+                            }}
+                          />
+                        );
+                      }
+                      return null;
+                    })()}
                   </ListItemButton>
                 );
               })}
